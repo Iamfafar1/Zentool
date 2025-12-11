@@ -546,9 +546,7 @@ function loadWelcomeScreen() {
                     </div>
                 </div>
                 <div class="relative z-0">
-                   <div class="relative z-0">
-    <img src="logo.svg" class="w-48 h-48 md:w-64 md:h-64 drop-shadow-2xl animate-float">
-</div>
+                    <img src="logo.svg" class="w-48 h-48 md:w-64 md:h-64 drop-shadow-2xl animate-float">
                     <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-pink-500/30 rounded-full blur-xl animate-pulse-slow"></div>
                     <div class="absolute -top-4 -left-4 w-32 h-32 bg-blue-500/30 rounded-full blur-xl animate-pulse-slow delay-75"></div>
                 </div>
@@ -1302,7 +1300,7 @@ function convertJsonToCsv() {
 
         document.getElementById('csvOutput').value = csvRows.join('\n');
     } catch(e) {
-        document.getElementById('csvOutput').value = "Error: Invalid JSON. Ensure it is an array of objects [{},{}]";
+        document.getElementById('csvOutput').value = "Error: Invalid JSON. Ensure it is an array of objects [{\"name\":\"value\"}]";
     } finally {
         endProgress();
     }
@@ -1797,7 +1795,3 @@ function loadInvoiceJSON(input) {
     }
 
 }
-
-
-
-
