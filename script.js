@@ -237,19 +237,42 @@ const tools = {
         bgClass: "bg-cyan-100 dark:bg-cyan-900/30",
         html: `<div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in space-y-6"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Income Goal ($)</label><input type="number" id="incGoal" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="5000" oninput="calcRate()"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Expenses / Overhead ($)</label><input type="number" id="incExp" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="500" oninput="calcRate()"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Billable Hours / Week</label><input type="number" id="incHours" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="20" oninput="calcRate()"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Weeks Off / Year</label><input type="number" id="incVacation" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="4" oninput="calcRate()"></div></div><div class="mt-6 bg-cyan-500/10 dark:bg-cyan-900/30 p-6 rounded-xl text-center border border-cyan-500/20"><p class="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold mb-2">Hourly Rate Required</p><h3 class="text-4xl font-extrabold text-cyan-600 dark:text-cyan-400" id="incResult">$0.00 <span class="text-lg text-slate-400 font-normal">/hr</span></h3></div></div>`
     },
-    invoiceGenerator: {
+   invoiceGenerator: {
         title: "Freelance Invoice Gen",
         desc: "Create professional PDF invoices instantly.",
         category: "Business",
+        isNew: true,
         icon: "fa-file-invoice-dollar",
         colorClass: "text-emerald-600",
         bgClass: "bg-emerald-100 dark:bg-emerald-900/30",
         html: `
         <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 fade-in h-auto lg:h-[calc(100vh-140px)]">
             <div class="w-full lg:w-1/3 glass p-6 rounded-xl shadow-lg border border-white/20 overflow-y-auto custom-scrollbar flex flex-col">
-                <h3 class="font-bold text-lg mb-4 text-emerald-600 flex items-center"><i class="fa-solid fa-pen-to-square mr-2"></i>Edit Details</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-emerald-600 flex items-center"><i class="fa-solid fa-pen-to-square mr-2"></i>Edit Details</h3>
+                    <div class="flex gap-2">
+                        <button onclick="document.getElementById('invJsonInput').click()" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 px-2 py-1 rounded" title="Load JSON"><i class="fa-solid fa-upload"></i> Load</button>
+                        <input type="file" id="invJsonInput" class="hidden" accept=".json" onchange="loadInvoiceJSON(this)">
+                        <button onclick="downloadInvoiceJSON()" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 px-2 py-1 rounded" title="Save JSON"><i class="fa-solid fa-download"></i> Save</button>
+                    </div>
+                </div>
                 
                 <div class="space-y-4 flex-1">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Design Template</label>
+                        <select id="invTemplate" class="w-full p-2 rounded-lg border dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" onchange="updateInvoicePreview()">
+                            <option value="minimal">1. Minimalist (Clean)</option>
+                            <option value="corporate">2. Corporate (Dark Header)</option>
+                            <option value="modern">3. Modern (Teal Accents)</option>
+                        </select>
+                    </div>
+
+                    <div class="p-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-center hover:bg-white/50 transition cursor-pointer group relative overflow-hidden" onclick="document.getElementById('invLogoInput').click()">
+                        <input type="file" id="invLogoInput" class="hidden" accept="image/*" onchange="handleInvLogo(this)">
+                        <div id="invLogoStatus" class="text-xs text-slate-500 font-bold uppercase group-hover:text-emerald-500"><i class="fa-solid fa-image mr-1"></i> Upload Company Logo</div>
+                        <img id="invLogoPreviewSmall" class="hidden h-10 w-auto mx-auto object-contain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50 group-hover:opacity-100 transition">
+                    </div>
+
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                              <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Invoice #</label>
@@ -293,6 +316,7 @@ const tools = {
                                 <option value="$">$ USD</option>
                                 <option value="€">€ EUR</option>
                                 <option value="£">£ GBP</option>
+                                <option value="৳">৳ BDT</option>
                                 <option value="₹">₹ INR</option>
                             </select>
                         </div>
@@ -305,63 +329,8 @@ const tools = {
             </div>
 
             <div class="w-full lg:w-2/3 bg-slate-200 dark:bg-slate-900/50 rounded-xl p-4 lg:p-8 overflow-y-auto flex justify-center items-start shadow-inner">
-                <div id="invoicePreview" class="bg-white text-slate-800 w-[210mm] min-h-[297mm] p-12 shadow-2xl relative text-sm origin-top scale-[0.6] sm:scale-[0.8] md:scale-100 transition-transform">
-                    <div class="flex justify-between items-start mb-12 border-b-2 border-emerald-500 pb-8">
-                        <div>
-                            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight uppercase">Invoice</h1>
-                            <p class="text-emerald-600 font-bold mt-1 text-lg" id="prevInvNum">#Inv-001</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider">Date Issued</p>
-                            <p id="prevDate" class="font-medium text-lg">2024-01-01</p>
-                        </div>
+                <div id="invoicePreview" class="bg-white text-slate-800 w-[210mm] min-h-[297mm] shadow-2xl relative text-sm origin-top scale-[0.6] sm:scale-[0.8] md:scale-100 transition-transform">
                     </div>
-
-                    <div class="flex justify-between mb-16 gap-8">
-                        <div class="w-1/2">
-                            <p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2">From</p>
-                            <p id="prevFrom" class="whitespace-pre-line text-slate-700 leading-relaxed">Your Name</p>
-                        </div>
-                        <div class="w-1/2 text-right">
-                            <p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2">Bill To</p>
-                            <p id="prevTo" class="whitespace-pre-line text-slate-800 font-bold leading-relaxed">Client Name</p>
-                        </div>
-                    </div>
-
-                    <table class="w-full mb-8">
-                        <thead>
-                            <tr class="bg-slate-50 border-y border-slate-200">
-                                <th class="text-left py-3 px-4 font-bold uppercase text-xs text-slate-500">Description</th>
-                                <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-24">Qty</th>
-                                <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-32">Price</th>
-                                <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-32">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="prevItemsList" class="text-slate-600">
-                            </tbody>
-                    </table>
-
-                    <div class="flex justify-end mt-8">
-                        <div class="w-64 space-y-3">
-                            <div class="flex justify-between text-slate-500 text-sm">
-                                <span>Subtotal</span>
-                                <span id="prevSubtotal" class="font-medium">$0.00</span>
-                            </div>
-                            <div class="flex justify-between text-slate-500 text-sm">
-                                <span>Tax</span>
-                                <span id="prevTax" class="font-medium">$0.00</span>
-                            </div>
-                            <div class="flex justify-between font-bold text-2xl text-emerald-600 border-t-2 border-slate-100 pt-4 mt-2">
-                                <span>Total</span>
-                                <span id="prevTotal">$0.00</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="absolute bottom-12 left-12 right-12 text-center">
-                        <p class="text-slate-400 text-xs uppercase tracking-widest font-bold">Thank you for your business</p>
-                    </div>
-                </div>
             </div>
         </div>
         `
@@ -1489,51 +1458,39 @@ async function shrinkUrl() {
     }
 }
 
-// --- 16. Password Generator Logic ---
-function generatePass() {
-    const length = 16;
-    const lower = "abcdefghijklmnopqrstuvwxyz";
-    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const numbers = "0123456789";
-    const symbols = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
-    
-    let charset = lower + upper;
-    if(document.getElementById('passNumbers').checked) charset += numbers;
-    if(document.getElementById('passSpecial').checked) charset += symbols;
-
-    let retVal = "";
-    for (let i = 0, n = charset.length; i < length; ++i) {
-        retVal += charset.charAt(Math.floor(Math.random() * n));
-    }
-    const out = document.getElementById('passOutput');
-    if(out) out.value = retVal;
-}
-
 // --- 17. Invoice Generator Logic ---
 let invItems = [{desc: "Web Development Services", qty: 1, price: 500}];
+let invLogoData = null; 
 
 function initInvoice() {
-    // Prevent running if tool isn't loaded
     if(!document.getElementById('invItemsInput')) return;
-    
-    // Set default date to today
     const dateInput = document.getElementById('invDate');
-    if(dateInput && !dateInput.value) {
-        dateInput.valueAsDate = new Date();
-    }
-    
+    if(dateInput && !dateInput.value) dateInput.valueAsDate = new Date();
     renderInvInputs();
     updateInvoicePreview();
 }
 
-// Hook into the main loadTool function to initialize invoice when opened
-// We monkey-patch the existing function to avoid finding it in the middle of the file
 const originalLoadToolForInv = loadTool; 
 loadTool = function(toolKey) {
-    originalLoadToolForInv(toolKey); // Run original logic
-    if(toolKey === 'invoiceGenerator') {
-        // specific init for invoice
-        setTimeout(initInvoice, 100);
+    originalLoadToolForInv(toolKey);
+    if(toolKey === 'invoiceGenerator') setTimeout(initInvoice, 100);
+}
+
+function handleInvLogo(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            invLogoData = e.target.result;
+            const smPrev = document.getElementById('invLogoPreviewSmall');
+            const status = document.getElementById('invLogoStatus');
+            if(smPrev) {
+                smPrev.src = invLogoData;
+                smPrev.classList.remove('hidden');
+                status.classList.add('hidden');
+            }
+            updateInvoicePreview();
+        }
+        reader.readAsDataURL(input.files[0]);
     }
 }
 
@@ -1561,11 +1518,7 @@ function addInvItem() {
 }
 
 function removeInvItem(index) {
-    if(invItems.length > 1) {
-        invItems.splice(index, 1);
-        renderInvInputs();
-        updateInvoicePreview();
-    }
+    if(invItems.length > 1) { invItems.splice(index, 1); renderInvInputs(); updateInvoicePreview(); }
 }
 
 function updateInvItem(index, field, value) {
@@ -1573,69 +1526,229 @@ function updateInvItem(index, field, value) {
     updateInvoicePreview();
 }
 
+// --- MAIN TEMPLATE RENDERER ---
 function updateInvoicePreview() {
-    // 1. Get Values
-    const num = document.getElementById('invNum').value || 'Inv-001';
-    const date = document.getElementById('invDate').value;
-    const from = document.getElementById('invFrom').value || 'Your Name';
-    const to = document.getElementById('invTo').value || 'Client Name';
-    const cur = document.getElementById('invCurrency').value;
+    // 1. Gather Data
+    const data = {
+        num: document.getElementById('invNum').value || 'Inv-001',
+        date: document.getElementById('invDate').value,
+        from: (document.getElementById('invFrom').value || 'Your Name').replace(/\n/g, '<br>'),
+        to: (document.getElementById('invTo').value || 'Client Name').replace(/\n/g, '<br>'),
+        currency: document.getElementById('invCurrency').value,
+        taxRate: parseFloat(document.getElementById('invTaxRate').value) || 0,
+        template: document.getElementById('invTemplate').value
+    };
 
-    // 2. Update Text
-    document.getElementById('prevInvNum').innerText = '#' + num.replace('#', '');
-    document.getElementById('prevDate').innerText = date;
-    document.getElementById('prevFrom').innerText = from;
-    document.getElementById('prevTo').innerText = to;
-
-    // 3. Render Table & Calculate Totals
-    const list = document.getElementById('prevItemsList');
-    if(!list) return;
-    list.innerHTML = '';
-    
+    // 2. Calculate Totals
     let subtotal = 0;
-
-    invItems.forEach(item => {
+    const rowsHtml = invItems.map(item => {
         const total = item.qty * item.price;
         subtotal += total;
-        list.innerHTML += `
+        return `
             <tr class="border-b border-slate-100 last:border-0">
                 <td class="py-3 px-4">${item.desc || 'Item'}</td>
                 <td class="text-right py-3 px-4">${item.qty}</td>
-                <td class="text-right py-3 px-4">${cur}${item.price.toFixed(2)}</td>
-                <td class="text-right py-3 px-4 font-bold text-slate-800">${cur}${total.toFixed(2)}</td>
+                <td class="text-right py-3 px-4">${data.currency}${item.price.toFixed(2)}</td>
+                <td class="text-right py-3 px-4 font-bold text-slate-800">${data.currency}${total.toFixed(2)}</td>
             </tr>
         `;
-    });
+    }).join('');
 
-    const taxRate = parseFloat(document.getElementById('invTaxRate').value) || 0;
-    const tax = subtotal * (taxRate / 100);
-    const finalTotal = subtotal + tax;
+    const tax = subtotal * (data.taxRate / 100);
+    const total = subtotal + tax;
+    const logoHtml = invLogoData ? `<img src="${invLogoData}" class="h-16 w-auto object-contain mb-4">` : '';
 
-    document.getElementById('prevSubtotal').innerText = cur + subtotal.toFixed(2);
-    document.getElementById('prevTax').innerText = cur + tax.toFixed(2);
-    document.getElementById('prevTotal').innerText = cur + finalTotal.toFixed(2);
+    // 3. Build HTML based on Template
+    let html = '';
+
+    if (data.template === 'corporate') {
+        // --- TEMPLATE 2: CORPORATE (Dark Header) ---
+        html = `
+            <div class="h-full flex flex-col font-sans">
+                <div class="bg-slate-800 text-white p-12 flex justify-between items-center">
+                    <div>${logoHtml}<h1 class="text-4xl font-bold tracking-widest uppercase">Invoice</h1></div>
+                    <div class="text-right">
+                        <p class="text-slate-400 text-xs uppercase font-bold">Invoice Number</p>
+                        <p class="text-xl font-bold mb-2">#${data.num}</p>
+                        <p class="text-slate-400 text-xs uppercase font-bold">Date</p>
+                        <p class="text-lg">${data.date}</p>
+                    </div>
+                </div>
+                <div class="p-12 flex-1">
+                    <div class="flex justify-between mb-12 gap-8">
+                        <div><p class="text-xs font-bold text-slate-400 uppercase mb-2">From</p><p class="text-slate-700">${data.from}</p></div>
+                        <div class="text-right"><p class="text-xs font-bold text-slate-400 uppercase mb-2">Bill To</p><p class="text-slate-900 font-bold text-lg">${data.to}</p></div>
+                    </div>
+                    <table class="w-full mb-8">
+                        <thead class="bg-slate-100 text-slate-600">
+                            <tr>
+                                <th class="text-left py-2 px-4 text-xs uppercase font-bold">Description</th>
+                                <th class="text-right py-2 px-4 text-xs uppercase font-bold">Qty</th>
+                                <th class="text-right py-2 px-4 text-xs uppercase font-bold">Price</th>
+                                <th class="text-right py-2 px-4 text-xs uppercase font-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-600">${rowsHtml}</tbody>
+                    </table>
+                    <div class="flex justify-end">
+                        <div class="w-1/3 text-right space-y-2">
+                            <div class="flex justify-between text-slate-500"><span>Subtotal</span><span>${data.currency}${subtotal.toFixed(2)}</span></div>
+                            <div class="flex justify-between text-slate-500"><span>Tax (${data.taxRate}%)</span><span>${data.currency}${tax.toFixed(2)}</span></div>
+                            <div class="flex justify-between text-slate-900 font-bold text-xl border-t border-slate-200 pt-2"><span>Total</span><span>${data.currency}${total.toFixed(2)}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+    } else if (data.template === 'modern') {
+        // --- TEMPLATE 3: MODERN (Teal Accent) ---
+        html = `
+            <div class="h-full p-12 font-sans relative">
+                <div class="absolute top-0 left-0 w-full h-4 bg-teal-500"></div>
+                <div class="flex justify-between items-start mb-16 mt-4">
+                    <div>
+                        ${logoHtml}
+                        <p class="text-slate-400 font-bold">INVOICE #${data.num}</p>
+                    </div>
+                    <div class="text-right">
+                         <h1 class="text-4xl font-extrabold text-teal-600 mb-2">INVOICE</h1>
+                         <p class="text-slate-500">${data.date}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-12 mb-12">
+                    <div class="border-l-4 border-slate-200 pl-4">
+                        <p class="text-xs font-bold text-teal-600 uppercase mb-1">From</p>
+                        <p class="text-slate-700">${data.from}</p>
+                    </div>
+                    <div class="border-l-4 border-teal-500 pl-4">
+                        <p class="text-xs font-bold text-teal-600 uppercase mb-1">Bill To</p>
+                        <p class="text-slate-900 font-bold">${data.to}</p>
+                    </div>
+                </div>
+                <table class="w-full mb-8">
+                    <thead>
+                        <tr class="border-b-2 border-teal-500 text-teal-700">
+                            <th class="text-left py-2 px-4 text-sm font-bold">Item</th>
+                            <th class="text-right py-2 px-4 text-sm font-bold">Qty</th>
+                            <th class="text-right py-2 px-4 text-sm font-bold">Price</th>
+                            <th class="text-right py-2 px-4 text-sm font-bold">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-slate-600">${rowsHtml}</tbody>
+                </table>
+                <div class="flex justify-end mt-12">
+                    <div class="bg-teal-50 p-6 rounded-xl w-1/2">
+                        <div class="flex justify-between text-teal-800 mb-2"><span>Subtotal</span><span>${data.currency}${subtotal.toFixed(2)}</span></div>
+                        <div class="flex justify-between text-teal-800 mb-4 border-b border-teal-200 pb-2"><span>Tax</span><span>${data.currency}${tax.toFixed(2)}</span></div>
+                        <div class="flex justify-between text-teal-900 font-extrabold text-2xl"><span>Total</span><span>${data.currency}${total.toFixed(2)}</span></div>
+                    </div>
+                </div>
+            </div>`;
+
+    } else {
+        // --- TEMPLATE 1: MINIMALIST (Default) ---
+        html = `
+            <div class="p-12 font-sans h-full">
+                <div class="flex justify-between items-start mb-12 border-b-2 border-emerald-500 pb-8">
+                    <div>
+                        ${logoHtml}
+                        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight uppercase">Invoice</h1>
+                        <p class="text-emerald-600 font-bold mt-1 text-lg">#${data.num}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider">Date Issued</p>
+                        <p class="font-medium text-lg">${data.date}</p>
+                    </div>
+                </div>
+                <div class="flex justify-between mb-16 gap-8">
+                    <div class="w-1/2"><p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2">From</p><p class="whitespace-pre-line text-slate-700 leading-relaxed">${data.from}</p></div>
+                    <div class="w-1/2 text-right"><p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2">Bill To</p><p class="whitespace-pre-line text-slate-800 font-bold leading-relaxed">${data.to}</p></div>
+                </div>
+                <table class="w-full mb-8">
+                    <thead>
+                        <tr class="bg-slate-50 border-y border-slate-200">
+                            <th class="text-left py-3 px-4 font-bold uppercase text-xs text-slate-500">Description</th>
+                            <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-24">Qty</th>
+                            <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-32">Price</th>
+                            <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-32">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-slate-600">${rowsHtml}</tbody>
+                </table>
+                <div class="flex justify-end mt-8">
+                    <div class="w-64 space-y-3">
+                        <div class="flex justify-between text-slate-500 text-sm"><span>Subtotal</span><span class="font-medium">${data.currency}${subtotal.toFixed(2)}</span></div>
+                        <div class="flex justify-between text-slate-500 text-sm"><span>Tax</span><span class="font-medium">${data.currency}${tax.toFixed(2)}</span></div>
+                        <div class="flex justify-between font-bold text-2xl text-emerald-600 border-t-2 border-slate-100 pt-4 mt-2"><span>Total</span><span>${data.currency}${total.toFixed(2)}</span></div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    document.getElementById('invoicePreview').innerHTML = html;
 }
 
 function downloadInvoicePDF() {
     startProgress();
     const element = document.getElementById('invoicePreview');
-    
-    // We increase scale for better resolution
     html2canvas(element, { scale: 3, useCORS: true }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
-        
-        // A4 dimensions in mm
         const pdf = new jsPDF('p', 'mm', 'a4'); 
-        const pdfWidth = 210;
-        const pdfHeight = 297;
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
         pdf.save(`Invoice_${document.getElementById('invNum').value || 'Draft'}.pdf`);
         endProgress();
     }).catch(err => {
         console.error(err);
-        alert("Error generating PDF. Please try again.");
+        alert("Error generating PDF.");
         endProgress();
     });
+}
+
+function downloadInvoiceJSON() {
+    const data = {
+        num: document.getElementById('invNum').value,
+        date: document.getElementById('invDate').value,
+        from: document.getElementById('invFrom').value,
+        to: document.getElementById('invTo').value,
+        items: invItems,
+        tax: document.getElementById('invTaxRate').value,
+        currency: document.getElementById('invCurrency').value,
+        logo: invLogoData,
+        template: document.getElementById('invTemplate').value
+    };
+    const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `InvoiceData_${data.num || 'Draft'}.json`;
+    link.click();
+}
+
+function loadInvoiceJSON(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                document.getElementById('invNum').value = data.num || '';
+                document.getElementById('invDate').value = data.date || '';
+                document.getElementById('invFrom').value = data.from || '';
+                document.getElementById('invTo').value = data.to || '';
+                document.getElementById('invTaxRate').value = data.tax || 0;
+                document.getElementById('invCurrency').value = data.currency || '$';
+                if(data.template) document.getElementById('invTemplate').value = data.template;
+                if(data.items) invItems = data.items;
+                if(data.logo) {
+                    invLogoData = data.logo;
+                    const smPrev = document.getElementById('invLogoPreviewSmall');
+                    if(smPrev) { smPrev.src = data.logo; smPrev.classList.remove('hidden'); }
+                }
+                renderInvInputs();
+                updateInvoicePreview();
+            } catch(err) {
+                alert("Invalid Invoice JSON file.");
+            }
+        };
+        reader.readAsText(input.files[0]);
+    }
 }
