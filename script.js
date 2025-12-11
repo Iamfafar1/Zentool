@@ -237,6 +237,135 @@ const tools = {
         bgClass: "bg-cyan-100 dark:bg-cyan-900/30",
         html: `<div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in space-y-6"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Income Goal ($)</label><input type="number" id="incGoal" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="5000" oninput="calcRate()"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Expenses / Overhead ($)</label><input type="number" id="incExp" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="500" oninput="calcRate()"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Billable Hours / Week</label><input type="number" id="incHours" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="20" oninput="calcRate()"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Weeks Off / Year</label><input type="number" id="incVacation" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="4" oninput="calcRate()"></div></div><div class="mt-6 bg-cyan-500/10 dark:bg-cyan-900/30 p-6 rounded-xl text-center border border-cyan-500/20"><p class="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold mb-2">Hourly Rate Required</p><h3 class="text-4xl font-extrabold text-cyan-600 dark:text-cyan-400" id="incResult">$0.00 <span class="text-lg text-slate-400 font-normal">/hr</span></h3></div></div>`
     },
+    invoiceGenerator: {
+        title: "Freelance Invoice Gen",
+        desc: "Create professional PDF invoices instantly.",
+        category: "Business",
+        icon: "fa-file-invoice-dollar",
+        colorClass: "text-emerald-600",
+        bgClass: "bg-emerald-100 dark:bg-emerald-900/30",
+        html: `
+        <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 fade-in h-auto lg:h-[calc(100vh-140px)]">
+            <div class="w-full lg:w-1/3 glass p-6 rounded-xl shadow-lg border border-white/20 overflow-y-auto custom-scrollbar flex flex-col">
+                <h3 class="font-bold text-lg mb-4 text-emerald-600 flex items-center"><i class="fa-solid fa-pen-to-square mr-2"></i>Edit Details</h3>
+                
+                <div class="space-y-4 flex-1">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                             <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Invoice #</label>
+                             <input type="text" id="invNum" placeholder="Inv-001" class="w-full p-2 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" oninput="updateInvoicePreview()">
+                        </div>
+                        <div>
+                             <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Date</label>
+                             <input type="date" id="invDate" class="w-full p-2 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" oninput="updateInvoicePreview()">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">From (Your Details)</label>
+                        <textarea id="invFrom" rows="3" placeholder="Your Name&#10;Address line 1&#10;contact@email.com" class="w-full p-2 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" oninput="updateInvoicePreview()"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Bill To (Client)</label>
+                        <textarea id="invTo" rows="3" placeholder="Client Company&#10;123 Business Rd&#10;City, Country" class="w-full p-2 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" oninput="updateInvoicePreview()"></textarea>
+                    </div>
+
+                    <div class="bg-white/40 dark:bg-slate-800/40 p-3 rounded-xl border border-white/20">
+                        <label class="text-[10px] font-bold uppercase text-slate-500 mb-2 flex justify-between items-center">
+                            <span>Line Items</span>
+                            <button onclick="addInvItem()" class="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded hover:bg-emerald-200 transition">
+                                <i class="fa-solid fa-plus"></i> Add
+                            </button>
+                        </label>
+                        <div id="invItemsInput" class="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+                            </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Tax Rate %</label>
+                            <input type="number" id="invTaxRate" value="0" class="w-full p-2 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm text-right" oninput="updateInvoicePreview()">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Currency</label>
+                            <select id="invCurrency" class="w-full p-2 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" onchange="updateInvoicePreview()">
+                                <option value="$">$ USD</option>
+                                <option value="€">€ EUR</option>
+                                <option value="£">£ GBP</option>
+                                <option value="₹">₹ INR</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="downloadInvoicePDF()" class="mt-4 w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl shadow-lg transition transform active:scale-95 flex items-center justify-center">
+                    <i class="fa-solid fa-file-pdf mr-2"></i> Download PDF
+                </button>
+            </div>
+
+            <div class="w-full lg:w-2/3 bg-slate-200 dark:bg-slate-900/50 rounded-xl p-4 lg:p-8 overflow-y-auto flex justify-center items-start shadow-inner">
+                <div id="invoicePreview" class="bg-white text-slate-800 w-[210mm] min-h-[297mm] p-12 shadow-2xl relative text-sm origin-top scale-[0.6] sm:scale-[0.8] md:scale-100 transition-transform">
+                    <div class="flex justify-between items-start mb-12 border-b-2 border-emerald-500 pb-8">
+                        <div>
+                            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight uppercase">Invoice</h1>
+                            <p class="text-emerald-600 font-bold mt-1 text-lg" id="prevInvNum">#Inv-001</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider">Date Issued</p>
+                            <p id="prevDate" class="font-medium text-lg">2024-01-01</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mb-16 gap-8">
+                        <div class="w-1/2">
+                            <p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2">From</p>
+                            <p id="prevFrom" class="whitespace-pre-line text-slate-700 leading-relaxed">Your Name</p>
+                        </div>
+                        <div class="w-1/2 text-right">
+                            <p class="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2">Bill To</p>
+                            <p id="prevTo" class="whitespace-pre-line text-slate-800 font-bold leading-relaxed">Client Name</p>
+                        </div>
+                    </div>
+
+                    <table class="w-full mb-8">
+                        <thead>
+                            <tr class="bg-slate-50 border-y border-slate-200">
+                                <th class="text-left py-3 px-4 font-bold uppercase text-xs text-slate-500">Description</th>
+                                <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-24">Qty</th>
+                                <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-32">Price</th>
+                                <th class="text-right py-3 px-4 font-bold uppercase text-xs text-slate-500 w-32">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prevItemsList" class="text-slate-600">
+                            </tbody>
+                    </table>
+
+                    <div class="flex justify-end mt-8">
+                        <div class="w-64 space-y-3">
+                            <div class="flex justify-between text-slate-500 text-sm">
+                                <span>Subtotal</span>
+                                <span id="prevSubtotal" class="font-medium">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-500 text-sm">
+                                <span>Tax</span>
+                                <span id="prevTax" class="font-medium">$0.00</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-2xl text-emerald-600 border-t-2 border-slate-100 pt-4 mt-2">
+                                <span>Total</span>
+                                <span id="prevTotal">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-12 left-12 right-12 text-center">
+                        <p class="text-slate-400 text-xs uppercase tracking-widest font-bold">Thank you for your business</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `
+    },
     jsonCsv: {
         title: "JSON to CSV Converter",
         desc: "Flatten complex JSON data into readable spreadsheets.",
@@ -1378,4 +1507,135 @@ function generatePass() {
     }
     const out = document.getElementById('passOutput');
     if(out) out.value = retVal;
+}
+
+// --- 17. Invoice Generator Logic ---
+let invItems = [{desc: "Web Development Services", qty: 1, price: 500}];
+
+function initInvoice() {
+    // Prevent running if tool isn't loaded
+    if(!document.getElementById('invItemsInput')) return;
+    
+    // Set default date to today
+    const dateInput = document.getElementById('invDate');
+    if(dateInput && !dateInput.value) {
+        dateInput.valueAsDate = new Date();
+    }
+    
+    renderInvInputs();
+    updateInvoicePreview();
+}
+
+// Hook into the main loadTool function to initialize invoice when opened
+// We monkey-patch the existing function to avoid finding it in the middle of the file
+const originalLoadToolForInv = loadTool; 
+loadTool = function(toolKey) {
+    originalLoadToolForInv(toolKey); // Run original logic
+    if(toolKey === 'invoiceGenerator') {
+        // specific init for invoice
+        setTimeout(initInvoice, 100);
+    }
+}
+
+function renderInvInputs() {
+    const container = document.getElementById('invItemsInput');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    invItems.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="flex gap-2 items-center fade-in bg-white dark:bg-slate-700 p-2 rounded-lg border border-slate-100 dark:border-slate-600 shadow-sm">
+                <input type="text" placeholder="Description" value="${item.desc}" oninput="updateInvItem(${index}, 'desc', this.value)" class="flex-1 bg-transparent border-b border-transparent focus:border-emerald-500 outline-none text-xs dark:text-white pb-1">
+                <input type="number" placeholder="#" value="${item.qty}" oninput="updateInvItem(${index}, 'qty', this.value)" class="w-10 bg-transparent border-b border-transparent focus:border-emerald-500 outline-none text-xs text-right dark:text-white pb-1">
+                <input type="number" placeholder="$" value="${item.price}" oninput="updateInvItem(${index}, 'price', this.value)" class="w-14 bg-transparent border-b border-transparent focus:border-emerald-500 outline-none text-xs text-right dark:text-white pb-1">
+                <button onclick="removeInvItem(${index})" class="text-slate-400 hover:text-red-500 transition px-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        `;
+    });
+}
+
+function addInvItem() {
+    invItems.push({desc: "", qty: 1, price: 0});
+    renderInvInputs();
+    updateInvoicePreview();
+}
+
+function removeInvItem(index) {
+    if(invItems.length > 1) {
+        invItems.splice(index, 1);
+        renderInvInputs();
+        updateInvoicePreview();
+    }
+}
+
+function updateInvItem(index, field, value) {
+    invItems[index][field] = field === 'desc' ? value : parseFloat(value) || 0;
+    updateInvoicePreview();
+}
+
+function updateInvoicePreview() {
+    // 1. Get Values
+    const num = document.getElementById('invNum').value || 'Inv-001';
+    const date = document.getElementById('invDate').value;
+    const from = document.getElementById('invFrom').value || 'Your Name';
+    const to = document.getElementById('invTo').value || 'Client Name';
+    const cur = document.getElementById('invCurrency').value;
+
+    // 2. Update Text
+    document.getElementById('prevInvNum').innerText = '#' + num.replace('#', '');
+    document.getElementById('prevDate').innerText = date;
+    document.getElementById('prevFrom').innerText = from;
+    document.getElementById('prevTo').innerText = to;
+
+    // 3. Render Table & Calculate Totals
+    const list = document.getElementById('prevItemsList');
+    if(!list) return;
+    list.innerHTML = '';
+    
+    let subtotal = 0;
+
+    invItems.forEach(item => {
+        const total = item.qty * item.price;
+        subtotal += total;
+        list.innerHTML += `
+            <tr class="border-b border-slate-100 last:border-0">
+                <td class="py-3 px-4">${item.desc || 'Item'}</td>
+                <td class="text-right py-3 px-4">${item.qty}</td>
+                <td class="text-right py-3 px-4">${cur}${item.price.toFixed(2)}</td>
+                <td class="text-right py-3 px-4 font-bold text-slate-800">${cur}${total.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+
+    const taxRate = parseFloat(document.getElementById('invTaxRate').value) || 0;
+    const tax = subtotal * (taxRate / 100);
+    const finalTotal = subtotal + tax;
+
+    document.getElementById('prevSubtotal').innerText = cur + subtotal.toFixed(2);
+    document.getElementById('prevTax').innerText = cur + tax.toFixed(2);
+    document.getElementById('prevTotal').innerText = cur + finalTotal.toFixed(2);
+}
+
+function downloadInvoicePDF() {
+    startProgress();
+    const element = document.getElementById('invoicePreview');
+    
+    // We increase scale for better resolution
+    html2canvas(element, { scale: 3, useCORS: true }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        
+        // A4 dimensions in mm
+        const pdf = new jsPDF('p', 'mm', 'a4'); 
+        const pdfWidth = 210;
+        const pdfHeight = 297;
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Invoice_${document.getElementById('invNum').value || 'Draft'}.pdf`);
+        endProgress();
+    }).catch(err => {
+        console.error(err);
+        alert("Error generating PDF. Please try again.");
+        endProgress();
+    });
 }
