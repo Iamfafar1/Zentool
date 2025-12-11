@@ -596,11 +596,103 @@ function loadWelcomeScreen() {
     workspace.innerHTML = html;
 }
 
-window.onload = function() {
-    loadWelcomeScreen();
-    if (localStorage.getItem('theme') === 'dark') {
-        html.classList.add('dark');
+window.onload = function loadWelcomeScreen() {
+    const workspace = document.getElementById('workspace');
+    const titleEl = document.getElementById('tool-title');
+    const descEl = document.getElementById('tool-desc');
+    
+    titleEl.textContent = "Dashboard";
+    descEl.textContent = "Select a tool to get started.";
+
+    if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+        toggleSidebar();
     }
+
+    const categories = {};
+    Object.keys(tools).forEach(key => {
+        const tool = tools[key];
+        const catName = tool.category || "Other";
+        if (!categories[catName]) categories[catName] = [];
+        categories[catName].push({ key, ...tool });
+    });
+
+    let html = `
+        <div class="max-w-7xl mx-auto pb-10">
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-2xl mb-12 p-8 md:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 fade-in">
+                <div class="z-10 max-w-2xl">
+                    <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight drop-shadow-md">
+                        <span class="block text-white/90 text-lg font-bold uppercase tracking-widest mb-2">Welcome to</span>
+                        ZenTool Suite
+                    </h1>
+                    <p class="text-indigo-100 text-lg md:text-xl font-medium mb-8 leading-relaxed max-w-lg">
+                        Your ultimate digital swiss army knife. Create, convert, and calculate everything in one place.
+                    </p>
+                    <div class="relative max-w-md w-full mb-8 shadow-xl">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <i class="fa-solid fa-magnifying-glass text-indigo-200"></i>
+                        </div>
+                        <input type="text" id="dashboardSearch" oninput="filterDashboard()" 
+                            class="block w-full p-4 pl-11 text-sm text-white border border-white/20 rounded-xl bg-white/10 placeholder-indigo-200 focus:ring-4 focus:ring-white/30 focus:border-white backdrop-blur-md transition-all outline-none" 
+                            placeholder="Find a tool (e.g., 'PDF', 'QR Code')...">
+                    </div>
+                    <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                        ${Object.keys(categories).map(cat => `
+                            <a href="#cat-${cat.replace(/\s+/g, '-')}" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-sm font-bold backdrop-blur-sm transition-all border border-white/10 hover:scale-105">
+                                ${cat}
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="relative z-0">
+                    <img src="logo.svg" class="w-48 h-48 md:w-64 md:h-64 drop-shadow-2xl animate-float">
+                </div>
+            </div>
+            <div class="space-y-12">
+    `;
+
+    let delayCounter = 0;
+
+    Object.keys(categories).forEach(cat => {
+        const safeCat = cat.replace(/\s+/g, '-');
+        html += `
+            <div id="cat-${safeCat}" class="scroll-mt-24">
+                <div class="flex items-center gap-4 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white">${cat}</h2>
+                    <div class="h-px flex-1 bg-gradient-to-r from-slate-200 dark:from-slate-700 to-transparent"></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        `;
+
+        categories[cat].forEach(tool => {
+            const delay = delayCounter * 0.05;
+            // NEW BADGE LOGIC
+            const newBadge = tool.isNew ? `<span class="absolute top-4 right-4 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md z-20 animate-pulse">NEW</span>` : '';
+            
+            html += `
+                <div onclick="loadTool('${tool.key}')" 
+                     style="animation-delay: ${delay}s"
+                     class="slide-up-item cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:border-primary/50 dark:hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 tool-card flex flex-col items-start group relative overflow-hidden">
+                    ${newBadge}
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-transparent to-slate-50 dark:to-slate-700/50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-500"></div>
+                    <div class="w-12 h-12 rounded-xl ${tool.bgClass} ${tool.colorClass} flex items-center justify-center mb-4 text-xl shadow-inner group-hover:scale-110 transition-transform duration-300 z-10">
+                        <i class="fa-solid ${tool.icon}"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2 z-10 group-hover:text-primary transition-colors">${tool.title}</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 z-10">${tool.desc}</p>
+                    <div class="mt-auto flex items-center text-xs font-bold text-primary opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                        Launch Tool <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+            `;
+            delayCounter++;
+        });
+
+        html += `</div></div>`;
+    });
+    
+    html += `</div></div>`;
+    workspace.innerHTML = html;
+}
 };
 
 // --- Core Functions ---
@@ -1796,3 +1888,4 @@ function loadInvoiceJSON(input) {
         reader.readAsText(input.files[0]);
     }
 }
+
