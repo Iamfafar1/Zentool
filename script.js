@@ -629,7 +629,7 @@ window.onload = function loadWelcomeScreen() {
                     </p>
                     <div class="relative max-w-md w-full mb-8 shadow-xl">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                            <i class="fa-solid fa-magnifying-glass text-indigo-200"></i>
+                            <img src="logo.svg" class="w-48 h-48 md:w-64 md:h-64 drop-shadow-2xl animate-float">
                         </div>
                         <input type="text" id="dashboardSearch" oninput="filterDashboard()" 
                             class="block w-full p-4 pl-11 text-sm text-white border border-white/20 rounded-xl bg-white/10 placeholder-indigo-200 focus:ring-4 focus:ring-white/30 focus:border-white backdrop-blur-md transition-all outline-none" 
@@ -1888,4 +1888,5 @@ function loadInvoiceJSON(input) {
         reader.readAsText(input.files[0]);
     }
 }
+
 
