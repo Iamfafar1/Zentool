@@ -28,7 +28,7 @@
 
     <div class="md:hidden fixed w-full glass border-b border-white/20 z-50 flex justify-between items-center p-4 shadow-sm">
         <button onclick="loadWelcomeScreen()" class="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-            <i class="fa-solid fa-bolt mr-2 text-primary"></i>ZenTool
+            <img src="logo.svg" class="w-8 h-8 mr-2 drop-shadow-md" alt="Logo">ZenTool
         </button>
         <div class="flex items-center gap-4">
             <button onclick="toggleTheme()" class="text-slate-600 dark:text-slate-200 hover:text-primary">
@@ -42,9 +42,12 @@
 
     <aside id="sidebar" class="glass w-64 flex-shrink-0 flex flex-col transition-transform transform -translate-x-full md:translate-x-0 fixed top-0 left-0 md:relative z-40 h-full border-r border-white/20 dark:border-slate-700/50 pt-20 md:pt-0 backdrop-blur-xl">
         <div class="p-6 border-b border-slate-200/50 dark:border-slate-700/50 hidden md:block cursor-pointer" onclick="loadWelcomeScreen()">
-            <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                <i class="fa-solid fa-bolt mr-2 text-primary"></i>ZenTool
-            </h1>
+            <div class="flex items-center">
+    <img src="logo.svg" class="w-10 h-10 mr-3 drop-shadow-md" alt="Logo">
+    <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+        ZenTool
+    </h1>
+</div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium uppercase tracking-widest">Ultimate Suite</p>
         </div>
 
@@ -223,6 +226,7 @@
 </body>
 
 </html>
+
 
 
 
