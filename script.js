@@ -546,9 +546,9 @@ function loadWelcomeScreen() {
                     </div>
                 </div>
                 <div class="relative z-0">
-                    <div class="w-48 h-48 md:w-64 md:h-64 bg-white/10 rounded-full backdrop-blur-xl border border-white/20 flex items-center justify-center animate-float shadow-[0_0_50px_rgba(255,255,255,0.2)]">
-                        <i class="fa-solid fa-bolt text-8xl md:text-9xl text-yellow-300 drop-shadow-[0_0_15px_rgba(253,224,71,0.6)]"></i>
-                    </div>
+                   <div class="relative z-0">
+    <img src="logo.svg" class="w-48 h-48 md:w-64 md:h-64 drop-shadow-2xl animate-float">
+</div>
                     <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-pink-500/30 rounded-full blur-xl animate-pulse-slow"></div>
                     <div class="absolute -top-4 -left-4 w-32 h-32 bg-blue-500/30 rounded-full blur-xl animate-pulse-slow delay-75"></div>
                 </div>
@@ -1888,5 +1888,6 @@ function loadInvoiceJSON(input) {
         reader.readAsText(input.files[0]);
     }
 }
+
 
 
