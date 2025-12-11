@@ -805,7 +805,42 @@ const tools = {
             </div>
         `
     }
-};
+};,
+passwordGenerator: {
+        title: "Secure Password Gen",
+        desc: "Generate strong, random passwords instantly.",
+        category: "Security",
+        icon: "fa-shield-halved",
+        colorClass: "text-rose-500",
+        bgClass: "bg-rose-100 dark:bg-rose-900/30",
+        html: `
+            <div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in text-center">
+                <div class="mb-6">
+                    <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-lock text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold dark:text-white">Generate Secure Password</h3>
+                </div>
+                
+                <div class="relative mb-6">
+                    <input type="text" id="passOutput" class="w-full p-4 text-center text-xl font-mono font-bold rounded-xl border-2 border-rose-100 dark:border-rose-900 bg-white dark:bg-slate-900 dark:text-white outline-none" readonly placeholder="Click Generate">
+                    <button onclick="copyToClipboard('passOutput')" class="absolute right-2 top-2 bottom-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-sm font-bold text-slate-600 transition">Copy</button>
+                </div>
+
+                <div class="flex gap-4 justify-center mb-6">
+                    <label class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
+                        <input type="checkbox" id="passSpecial" checked class="accent-rose-500 rounded"> <span>Symbols (!@#)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
+                        <input type="checkbox" id="passNumbers" checked class="accent-rose-500 rounded"> <span>Numbers (123)</span>
+                    </label>
+                </div>
+
+                <button onclick="generatePass()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold py-4 rounded-xl shadow-lg transform active:scale-95 transition-all">
+                    <i class="fa-solid fa-arrows-rotate mr-2"></i> Generate Password
+                </button>
+            </div>`
+    }
 
 // --- Logic: Welcome Screen (Updated for Animation & Structure) ---
 
@@ -1730,6 +1765,26 @@ function processString() {
     // SpongeBob
     document.getElementById('outSponge').value = str.split('').map((char, i) => i % 2 === 0 ? char.toLowerCase() : char.toUpperCase()).join('');
 }
+// --- 13. Password Generator Logic ---
+function generatePass() {
+    const length = 16;
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numbers = "0123456789";
+    const symbols = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
+    
+    let charset = lower + upper;
+    if(document.getElementById('passNumbers').checked) charset += numbers;
+    if(document.getElementById('passSpecial').checked) charset += symbols;
+
+    let retVal = "";
+    for (let i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    
+    const out = document.getElementById('passOutput');
+    if(out) out.value = retVal;
+}
 
 // --- 13. CV Builder Logic (Enhanced) ---
 let cvPhotoData = null;
@@ -1970,4 +2025,5 @@ async function shrinkUrl() {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
+
 }
