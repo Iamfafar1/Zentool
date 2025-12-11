@@ -805,7 +805,8 @@ const tools = {
             </div>
         `
     }
-};,
+}
+,
 passwordGenerator: {
         title: "Secure Password Gen",
         desc: "Generate strong, random passwords instantly.",
@@ -840,7 +841,7 @@ passwordGenerator: {
                     <i class="fa-solid fa-arrows-rotate mr-2"></i> Generate Password
                 </button>
             </div>`
-    }
+    };
 
 // --- Logic: Welcome Screen (Updated for Animation & Structure) ---
 
@@ -2027,3 +2028,4 @@ async function shrinkUrl() {
     }
 
 }
+
