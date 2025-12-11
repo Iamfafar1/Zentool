@@ -4,9 +4,9 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
-                primary: '#6366f1', // Indigo
-                secondary: '#0f172a', // Slate 900
-                accent: '#ec4899', // Pink
+                primary: '#6366f1',
+                secondary: '#0f172a',
+                accent: '#ec4899',
             },
             animation: {
                 'gradient': 'gradient 15s ease infinite',
@@ -47,7 +47,6 @@ const body = document.body;
 
 function toggleSidebar() {
     const isClosed = sidebar.classList.contains('-translate-x-full');
-    
     if (isClosed) {
         sidebar.classList.remove('-translate-x-full');
         overlay.classList.remove('hidden');
@@ -99,34 +98,36 @@ let progressInterval;
 
 function startProgress() {
     clearInterval(progressInterval);
-    loader.style.width = '0%';
-    loader.style.opacity = '1';
-    
-    let width = 0;
-    progressInterval = setInterval(() => {
-        if (width >= 90) {
-            clearInterval(progressInterval);
-        } else {
-            width += Math.random() * 10;
-            if(width > 90) width = 90;
-            loader.style.width = width + '%';
-        }
-    }, 200);
+    if(loader) {
+        loader.style.width = '0%';
+        loader.style.opacity = '1';
+        let width = 0;
+        progressInterval = setInterval(() => {
+            if (width >= 90) {
+                clearInterval(progressInterval);
+            } else {
+                width += Math.random() * 10;
+                if(width > 90) width = 90;
+                loader.style.width = width + '%';
+            }
+        }, 200);
+    }
 }
 
 function endProgress() {
     clearInterval(progressInterval);
-    loader.style.width = '100%';
-    setTimeout(() => {
-        loader.style.opacity = '0';
+    if(loader) {
+        loader.style.width = '100%';
         setTimeout(() => {
-            loader.style.width = '0%';
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.width = '0%';
+            }, 300);
         }, 300);
-    }, 300);
+    }
 }
 
 // --- Tool Definitions ---
-
 const tools = {
     textHumanizer: {
         title: "AI Text Humanizer",
@@ -135,38 +136,7 @@ const tools = {
         icon: "fa-wand-magic-sparkles",
         colorClass: "text-purple-500",
         bgClass: "bg-purple-100 dark:bg-purple-900/30",
-        html: `
-            <div class="max-w-5xl mx-auto fade-in h-[calc(100vh-140px)] flex flex-col">
-                <div class="glass p-6 rounded-2xl shadow-lg border border-white/20 flex-1 flex flex-col">
-                    <div id="aiModelStatus" class="mb-4 hidden">
-                        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-1">
-                            <span>Downloading AI Brain...</span>
-                            <span id="aiProgressText">0%</span>
-                        </div>
-                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                            <div id="aiProgressBar" class="bg-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-6 flex-1 h-full">
-                        <div class="flex flex-col">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Robotic / AI Text</label>
-                            <textarea id="humanizerInput" class="flex-1 w-full p-4 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white resize-none focus:ring-2 focus:ring-purple-500 outline-none shadow-inner text-sm leading-relaxed" placeholder="Paste generated text here..."></textarea>
-                        </div>
-                        <div class="flex flex-col">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex justify-between">
-                                <span>Humanized Result</span>
-                                <button onclick="copyToClipboard('humanizerOutput')" class="text-xs text-purple-500 hover:text-purple-600"><i class="fa-solid fa-copy"></i> Copy</button>
-                            </label>
-                            <textarea id="humanizerOutput" class="flex-1 w-full p-4 border-0 rounded-xl bg-purple-50/50 dark:bg-purple-900/20 dark:text-white resize-none outline-none shadow-inner text-sm leading-relaxed border border-purple-100 dark:border-purple-800" readonly placeholder="Result will appear here..."></textarea>
-                        </div>
-                    </div>
-                    <div class="mt-6 flex justify-end">
-                        <button onclick="runHumanizer()" id="btnHumanize" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1 flex items-center">
-                            <i class="fa-solid fa-stars mr-2"></i> Humanize Text
-                        </button>
-                    </div>
-                </div>
-            </div>`
+        html: `<div class="max-w-5xl mx-auto fade-in h-[calc(100vh-140px)] flex flex-col"><div class="glass p-6 rounded-2xl shadow-lg border border-white/20 flex-1 flex flex-col"><div id="aiModelStatus" class="mb-4 hidden"><div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-1"><span>Downloading AI Brain...</span><span id="aiProgressText">0%</span></div><div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2"><div id="aiProgressBar" class="bg-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div></div></div><div class="grid md:grid-cols-2 gap-6 flex-1 h-full"><div class="flex flex-col"><label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Robotic / AI Text</label><textarea id="humanizerInput" class="flex-1 w-full p-4 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white resize-none focus:ring-2 focus:ring-purple-500 outline-none shadow-inner text-sm leading-relaxed" placeholder="Paste generated text here..."></textarea></div><div class="flex flex-col"><label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex justify-between"><span>Humanized Result</span><button onclick="copyToClipboard('humanizerOutput')" class="text-xs text-purple-500 hover:text-purple-600"><i class="fa-solid fa-copy"></i> Copy</button></label><textarea id="humanizerOutput" class="flex-1 w-full p-4 border-0 rounded-xl bg-purple-50/50 dark:bg-purple-900/20 dark:text-white resize-none outline-none shadow-inner text-sm leading-relaxed border border-purple-100 dark:border-purple-800" readonly placeholder="Result will appear here..."></textarea></div></div><div class="mt-6 flex justify-end"><button onclick="runHumanizer()" id="btnHumanize" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:-translate-y-1 flex items-center"><i class="fa-solid fa-stars mr-2"></i> Humanize Text</button></div></div></div>`
     },
     cvBuilder: {
         title: "CV Builder Pro",
@@ -175,33 +145,7 @@ const tools = {
         icon: "fa-id-card",
         colorClass: "text-teal-500",
         bgClass: "bg-teal-100 dark:bg-teal-900/30",
-        html: `
-            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 fade-in h-auto lg:h-[calc(100vh-140px)]">
-                <div class="w-full lg:w-1/3 glass p-6 rounded-xl shadow-lg border border-white/20 overflow-y-auto custom-scrollbar">
-                    <div class="mb-6 text-center">
-                        <label class="cursor-pointer block relative group w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-dashed border-slate-300 hover:border-teal-500 transition">
-                            <img id="cvPhotoPreview" class="w-full h-full object-cover hidden">
-                            <div id="cvPhotoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 group-hover:text-teal-500 bg-slate-50 dark:bg-slate-800"><i class="fa-solid fa-camera text-xl mb-1"></i><span class="text-[10px] uppercase font-bold">Add Photo</span></div>
-                            <input type="file" class="hidden" accept="image/*" onchange="handleCVPhoto(this)">
-                        </label>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="space-y-2"><label class="text-xs font-bold uppercase text-slate-500">Personal Info</label><input type="text" id="cvName" placeholder="Full Name" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"><input type="text" id="cvJob" placeholder="Job Title" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></div>
-                        <div class="grid grid-cols-2 gap-2"><input type="text" id="cvEmail" placeholder="Email" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"><input type="text" id="cvPhone" placeholder="Phone" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></div>
-                        <div class="grid grid-cols-2 gap-2"><input type="text" id="cvAddress" placeholder="City, Country" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"><input type="text" id="cvWeb" placeholder="Website / LinkedIn" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></div>
-                        <div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Profile</label><textarea id="cvSummary" placeholder="Professional Summary..." rows="3" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></textarea></div>
-                        <div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Experience</label><textarea id="cvExp" placeholder="Company | Date&#10;• Achievements..." rows="4" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm font-mono" oninput="updateCVPreview()"></textarea></div>
-                        <div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Education</label><textarea id="cvEdu" placeholder="Degree | University | Date" rows="3" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm font-mono" oninput="updateCVPreview()"></textarea></div>
-                        <div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Skills</label><textarea id="cvSkills" placeholder="Skill 1, Skill 2, Skill 3" rows="2" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></textarea></div>
-                    </div>
-                    <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-                        <label class="text-xs font-bold uppercase text-slate-500 mb-2 block">Choose Template</label>
-                        <select id="cvTemplateSelector" onchange="updateCVPreview()" class="w-full p-3 rounded-lg border dark:border-slate-600 bg-white dark:bg-slate-800 shadow-sm focus:ring-2 focus:ring-teal-500 outline-none"><option value="1">1. Minimalist Clean</option><option value="2">2. Modern Blue Sidebar</option><option value="3">3. Creative Pink</option><option value="4">4. Corporate Grey</option><option value="10">10. Tech Stack</option></select>
-                        <button onclick="downloadCV()" class="w-full mt-4 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg transform active:scale-95 transition-all"><i class="fa-solid fa-download mr-2"></i> Download PDF</button>
-                    </div>
-                </div>
-                <div class="w-full lg:w-2/3 bg-slate-100 dark:bg-slate-900/50 rounded-xl p-4 lg:p-8 overflow-y-auto flex justify-center items-start shadow-inner"><div id="cvPreviewArea" class="cv-preview origin-top transition-all shadow-2xl bg-white text-black min-h-[297mm] w-[210mm] relative"></div></div>
-            </div>`
+        html: `<div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 fade-in h-auto lg:h-[calc(100vh-140px)]"><div class="w-full lg:w-1/3 glass p-6 rounded-xl shadow-lg border border-white/20 overflow-y-auto custom-scrollbar"><div class="mb-6 text-center"><label class="cursor-pointer block relative group w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-dashed border-slate-300 hover:border-teal-500 transition"><img id="cvPhotoPreview" class="w-full h-full object-cover hidden"><div id="cvPhotoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 group-hover:text-teal-500 bg-slate-50 dark:bg-slate-800"><i class="fa-solid fa-camera text-xl mb-1"></i><span class="text-[10px] uppercase font-bold">Add Photo</span></div><input type="file" class="hidden" accept="image/*" onchange="handleCVPhoto(this)"></label></div><div class="space-y-4"><div class="space-y-2"><label class="text-xs font-bold uppercase text-slate-500">Personal Info</label><input type="text" id="cvName" placeholder="Full Name" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"><input type="text" id="cvJob" placeholder="Job Title" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></div><div class="grid grid-cols-2 gap-2"><input type="text" id="cvEmail" placeholder="Email" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"><input type="text" id="cvPhone" placeholder="Phone" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></div><div class="grid grid-cols-2 gap-2"><input type="text" id="cvAddress" placeholder="City, Country" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"><input type="text" id="cvWeb" placeholder="Website / LinkedIn" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></div><div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Profile</label><textarea id="cvSummary" placeholder="Professional Summary..." rows="3" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></textarea></div><div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Experience</label><textarea id="cvExp" placeholder="Company | Date&#10;• Achievements..." rows="4" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm font-mono" oninput="updateCVPreview()"></textarea></div><div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Education</label><textarea id="cvEdu" placeholder="Degree | University | Date" rows="3" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm font-mono" oninput="updateCVPreview()"></textarea></div><div><label class="text-xs font-bold uppercase text-slate-500 mb-1 block">Skills</label><textarea id="cvSkills" placeholder="Skill 1, Skill 2, Skill 3" rows="2" class="w-full p-2.5 rounded-lg border dark:border-slate-600 bg-white/50 dark:bg-slate-800 text-sm" oninput="updateCVPreview()"></textarea></div></div><div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700"><label class="text-xs font-bold uppercase text-slate-500 mb-2 block">Choose Template</label><select id="cvTemplateSelector" onchange="updateCVPreview()" class="w-full p-3 rounded-lg border dark:border-slate-600 bg-white dark:bg-slate-800 shadow-sm focus:ring-2 focus:ring-teal-500 outline-none"><option value="1">1. Minimalist Clean</option><option value="2">2. Modern Blue Sidebar</option><option value="3">3. Creative Pink</option><option value="4">4. Corporate Grey</option><option value="10">10. Tech Stack</option></select><button onclick="downloadCV()" class="w-full mt-4 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg transform active:scale-95 transition-all"><i class="fa-solid fa-download mr-2"></i> Download PDF</button></div></div><div class="w-full lg:w-2/3 bg-slate-100 dark:bg-slate-900/50 rounded-xl p-4 lg:p-8 overflow-y-auto flex justify-center items-start shadow-inner"><div id="cvPreviewArea" class="cv-preview origin-top transition-all shadow-2xl bg-white text-black min-h-[297mm] w-[210mm] relative"></div></div></div>`
     },
     pdfArchitect: {
         title: "PDF & Office Architect",
@@ -210,12 +154,7 @@ const tools = {
         icon: "fa-file-pdf",
         colorClass: "text-red-500",
         bgClass: "bg-red-100 dark:bg-red-900/30",
-        html: `
-            <div class="max-w-4xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in">
-                <div class="flex justify-center mb-8"><div class="bg-white/50 dark:bg-slate-800/50 p-1 rounded-xl flex shadow-sm"><button onclick="setPdfMode('pdf')" id="btn-mode-pdf" class="px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 shadow-sm text-red-600 dark:text-red-400 transition-all">To PDF</button><button onclick="setPdfMode('office')" id="btn-mode-office" class="px-6 py-2 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-600/50 transition-all">To MS Office</button></div></div>
-                <div id="mode-pdf-content"><div class="text-center mb-6"><h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">Convert to PDF</h3><p class="text-sm text-slate-500">Word (.docx), Images, or Text.</p></div><div id="pdfUploadBox" class="border-2 border-dashed border-red-300 dark:border-red-900/50 rounded-xl p-12 text-center hover:bg-white/30 dark:hover:bg-slate-700/30 transition cursor-pointer group mb-6" onclick="document.getElementById('pdfInput').click()"><div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-cloud-arrow-up text-2xl"></i></div><p class="font-bold text-lg text-slate-700 dark:text-slate-200">Click to Upload</p><input type="file" id="pdfInput" class="hidden" accept=".docx,.txt,image/*" onchange="handlePdfUpload(this)"></div><div id="pdfActionArea" class="hidden text-center bg-white/50 dark:bg-slate-900/50 p-6 rounded-xl border border-white/10"><div class="flex items-center justify-center gap-3 mb-4"><i class="fa-solid fa-file-circle-check text-green-500 text-xl"></i><span id="pdfFileName" class="font-mono text-sm dark:text-white">file.name</span></div><button onclick="generatePDF()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg">Download PDF</button></div></div>
-                <div id="mode-office-content" class="hidden"><div class="text-center mb-6"><h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">Convert to MS Word/Excel</h3><p class="text-sm text-slate-500">Create Office docs from text or data.</p></div><div class="grid md:grid-cols-2 gap-6"><div class="bg-white/50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700"><h4 class="font-bold text-blue-600 mb-2"><i class="fa-solid fa-file-word mr-2"></i>Text to Word</h4><textarea id="wordContent" class="w-full h-32 p-3 text-sm rounded-lg bg-white dark:bg-slate-900 border dark:border-slate-600 mb-4" placeholder="Type document content..."></textarea><button onclick="exportToOffice('word')" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold text-sm">Download .doc</button></div><div class="bg-white/50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700"><h4 class="font-bold text-green-600 mb-2"><i class="fa-solid fa-file-excel mr-2"></i>JSON to Excel</h4><textarea id="excelContent" class="w-full h-32 p-3 text-sm rounded-lg bg-white dark:bg-slate-900 border dark:border-slate-600 mb-4 font-mono" placeholder='[{"Name":"John", "Age":30}]'></textarea><button onclick="exportToOffice('excel')" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold text-sm">Download .xls</button></div></div></div>
-            </div>`
+        html: `<div class="max-w-4xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in"><div class="flex justify-center mb-8"><div class="bg-white/50 dark:bg-slate-800/50 p-1 rounded-xl flex shadow-sm"><button onclick="setPdfMode('pdf')" id="btn-mode-pdf" class="px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 shadow-sm text-red-600 dark:text-red-400 transition-all">To PDF</button><button onclick="setPdfMode('office')" id="btn-mode-office" class="px-6 py-2 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-600/50 transition-all">To MS Office</button></div></div><div id="mode-pdf-content"><div class="text-center mb-6"><h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">Convert to PDF</h3><p class="text-sm text-slate-500">Word (.docx), Images, or Text.</p></div><div id="pdfUploadBox" class="border-2 border-dashed border-red-300 dark:border-red-900/50 rounded-xl p-12 text-center hover:bg-white/30 dark:hover:bg-slate-700/30 transition cursor-pointer group mb-6" onclick="document.getElementById('pdfInput').click()"><div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-cloud-arrow-up text-2xl"></i></div><p class="font-bold text-lg text-slate-700 dark:text-slate-200">Click to Upload</p><input type="file" id="pdfInput" class="hidden" accept=".docx,.txt,image/*" onchange="handlePdfUpload(this)"></div><div id="pdfActionArea" class="hidden text-center bg-white/50 dark:bg-slate-900/50 p-6 rounded-xl border border-white/10"><div class="flex items-center justify-center gap-3 mb-4"><i class="fa-solid fa-file-circle-check text-green-500 text-xl"></i><span id="pdfFileName" class="font-mono text-sm dark:text-white">file.name</span></div><button onclick="generatePDF()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg">Download PDF</button></div></div><div id="mode-office-content" class="hidden"><div class="text-center mb-6"><h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">Convert to MS Word/Excel</h3><p class="text-sm text-slate-500">Create Office docs from text or data.</p></div><div class="grid md:grid-cols-2 gap-6"><div class="bg-white/50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700"><h4 class="font-bold text-blue-600 mb-2"><i class="fa-solid fa-file-word mr-2"></i>Text to Word</h4><textarea id="wordContent" class="w-full h-32 p-3 text-sm rounded-lg bg-white dark:bg-slate-900 border dark:border-slate-600 mb-4" placeholder="Type document content..."></textarea><button onclick="exportToOffice('word')" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold text-sm">Download .doc</button></div><div class="bg-white/50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700"><h4 class="font-bold text-green-600 mb-2"><i class="fa-solid fa-file-excel mr-2"></i>JSON to Excel</h4><textarea id="excelContent" class="w-full h-32 p-3 text-sm rounded-lg bg-white dark:bg-slate-900 border dark:border-slate-600 mb-4 font-mono" placeholder='[{"Name":"John", "Age":30}]'></textarea><button onclick="exportToOffice('excel')" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold text-sm">Download .xls</button></div></div></div></div>`
     },
     docTools: {
         title: "DocuSmith",
@@ -224,11 +163,7 @@ const tools = {
         icon: "fa-pen-nib",
         colorClass: "text-blue-500",
         bgClass: "bg-blue-100 dark:bg-blue-900/30",
-        html: `
-            <div class="max-w-4xl mx-auto glass p-6 rounded-2xl shadow-lg border border-white/20 fade-in h-[calc(100vh-200px)] flex flex-col">
-                <div class="mb-4 flex flex-wrap gap-2 justify-between items-center"><label class="text-sm font-bold text-slate-700 dark:text-slate-200">Editor</label><div class="flex gap-2"><button onclick="exportDoc('pdf')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-3 rounded shadow-lg transition transform hover:scale-105"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button><button onclick="exportDoc('word')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded shadow-lg transition transform hover:scale-105"><i class="fa-solid fa-file-word mr-1"></i> Word</button><button onclick="exportDoc('txt')" class="bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold py-2 px-3 rounded shadow-lg transition transform hover:scale-105"><i class="fa-solid fa-file-lines mr-1"></i> TXT</button></div></div>
-                <textarea id="docInput" class="flex-1 w-full p-6 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white resize-none focus:ring-2 focus:ring-primary outline-none shadow-inner font-serif text-lg leading-relaxed" placeholder="Type here..."></textarea>
-            </div>`
+        html: `<div class="max-w-4xl mx-auto glass p-6 rounded-2xl shadow-lg border border-white/20 fade-in h-[calc(100vh-200px)] flex flex-col"><div class="mb-4 flex flex-wrap gap-2 justify-between items-center"><label class="text-sm font-bold text-slate-700 dark:text-slate-200">Editor</label><div class="flex gap-2"><button onclick="exportDoc('pdf')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-3 rounded shadow-lg transition transform hover:scale-105"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button><button onclick="exportDoc('word')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded shadow-lg transition transform hover:scale-105"><i class="fa-solid fa-file-word mr-1"></i> Word</button><button onclick="exportDoc('txt')" class="bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold py-2 px-3 rounded shadow-lg transition transform hover:scale-105"><i class="fa-solid fa-file-lines mr-1"></i> TXT</button></div></div><textarea id="docInput" class="flex-1 w-full p-6 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white resize-none focus:ring-2 focus:ring-primary outline-none shadow-inner font-serif text-lg leading-relaxed" placeholder="Type here..."></textarea></div>`
     },
     imageConverter: {
         title: "Niche File Converter",
@@ -237,11 +172,7 @@ const tools = {
         icon: "fa-image",
         colorClass: "text-indigo-500",
         bgClass: "bg-indigo-100 dark:bg-indigo-900/30",
-        html: `
-            <div class="glass p-8 rounded-2xl shadow-lg border border-white/20 max-w-2xl mx-auto fade-in">
-                <div id="uploadBox" class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-10 text-center hover:bg-white/30 dark:hover:bg-slate-700/30 transition cursor-pointer group" onclick="document.getElementById('imgInput').click()"><div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-cloud-arrow-up text-2xl"></i></div><p class="font-bold text-lg text-slate-700 dark:text-slate-200">Click to Upload Image</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Supports HEIC (iPhone), WebP, JPG, PNG, GIF</p><div id="loadingIndicator" class="hidden mt-4 flex justify-center items-center gap-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 py-2 px-4 rounded-full inline-block"><div class="loader !w-4 !h-4 !border-2"></div> Processing HEIC...</div><input type="file" id="imgInput" class="hidden" accept="image/*, .heic" onchange="handleImageUpload(this)"></div>
-                <div id="imgPreviewArea" class="hidden mt-8 p-4 bg-white/50 dark:bg-slate-900/50 rounded-xl"><div class="flex flex-col md:flex-row gap-6 items-center"><img id="previewImg" class="max-w-[200px] w-full rounded-lg border dark:border-slate-600 shadow-md" alt="Preview"><div class="flex-1 w-full space-y-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Convert To:</label><div class="relative"><select id="convertFormat" class="w-full p-3 pl-4 border dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 dark:text-white appearance-none focus:ring-2 focus:ring-primary outline-none"><option value="image/png">PNG (Lossless)</option><option value="image/jpeg">JPG (Standard)</option><option value="image/webp">WebP (Modern)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500"><i class="fa-solid fa-chevron-down text-xs"></i></div></div></div><button onclick="convertImage()" class="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">Download Converted File</button></div></div></div>
-            </div>`
+        html: `<div class="glass p-8 rounded-2xl shadow-lg border border-white/20 max-w-2xl mx-auto fade-in"><div id="uploadBox" class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-10 text-center hover:bg-white/30 dark:hover:bg-slate-700/30 transition cursor-pointer group" onclick="document.getElementById('imgInput').click()"><div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-cloud-arrow-up text-2xl"></i></div><p class="font-bold text-lg text-slate-700 dark:text-slate-200">Click to Upload Image</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Supports HEIC (iPhone), WebP, JPG, PNG, GIF</p><div id="loadingIndicator" class="hidden mt-4 flex justify-center items-center gap-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 py-2 px-4 rounded-full inline-block"><div class="loader !w-4 !h-4 !border-2"></div> Processing HEIC...</div><input type="file" id="imgInput" class="hidden" accept="image/*, .heic" onchange="handleImageUpload(this)"></div><div id="imgPreviewArea" class="hidden mt-8 p-4 bg-white/50 dark:bg-slate-900/50 rounded-xl"><div class="flex flex-col md:flex-row gap-6 items-center"><img id="previewImg" class="max-w-[200px] w-full rounded-lg border dark:border-slate-600 shadow-md" alt="Preview"><div class="flex-1 w-full space-y-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Convert To:</label><div class="relative"><select id="convertFormat" class="w-full p-3 pl-4 border dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 dark:text-white appearance-none focus:ring-2 focus:ring-primary outline-none"><option value="image/png">PNG (Lossless)</option><option value="image/jpeg">JPG (Standard)</option><option value="image/webp">WebP (Modern)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500"><i class="fa-solid fa-chevron-down text-xs"></i></div></div></div><button onclick="convertImage()" class="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">Download Converted File</button></div></div></div></div>`
     },
     imageCompressor: {
         title: "Image Compressor",
@@ -250,11 +181,7 @@ const tools = {
         icon: "fa-minimize",
         colorClass: "text-rose-500",
         bgClass: "bg-rose-100 dark:bg-rose-900/30",
-        html: `
-            <div class="max-w-4xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in">
-                <div id="compUploadBox" class="border-2 border-dashed border-rose-300 dark:border-rose-900/50 rounded-xl p-10 text-center hover:bg-white/30 dark:hover:bg-slate-700/30 transition cursor-pointer group" onclick="document.getElementById('compInput').click()"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-compress text-2xl"></i></div><p class="font-bold text-lg text-slate-700 dark:text-slate-200">Upload Image to Compress</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Supports JPG, PNG, WEBP</p><input type="file" id="compInput" class="hidden" accept="image/*" onchange="handleCompUpload(this)"></div>
-                <div id="compInterface" class="hidden mt-8 grid md:grid-cols-2 gap-8"><div class="space-y-6"><div class="bg-white/50 dark:bg-slate-800/50 p-6 rounded-xl border dark:border-slate-700"><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Compression Level</label><input type="range" id="compRange" min="0.1" max="0.9" step="0.1" value="0.7" class="w-full accent-rose-500 cursor-pointer" oninput="updateCompression()"><div class="flex justify-between text-xs text-slate-500 mt-2 font-bold uppercase"><span>Max Compression</span><span id="compQualityDisplay">Quality: 70%</span><span>Best Quality</span></div></div><div class="flex justify-between items-center p-4 bg-slate-100 dark:bg-slate-900 rounded-lg"><div><p class="text-[10px] uppercase font-bold text-slate-500">Original Size</p><p id="compOrigSize" class="font-mono text-rose-600 font-bold">0 KB</p></div><div class="text-right"><p class="text-[10px] uppercase font-bold text-slate-500">New Size (Est)</p><p id="compNewSize" class="font-mono text-green-500 font-bold">0 KB</p></div></div><button onclick="downloadCompressed()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">Download Compressed Image</button></div><div class="flex items-center justify-center bg-black/5 dark:bg-black/40 rounded-xl p-4 border border-white/10"><img id="compPreview" class="max-h-[300px] object-contain rounded shadow-lg" /></div></div>
-            </div>`
+        html: `<div class="max-w-4xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in"><div id="compUploadBox" class="border-2 border-dashed border-rose-300 dark:border-rose-900/50 rounded-xl p-10 text-center hover:bg-white/30 dark:hover:bg-slate-700/30 transition cursor-pointer group" onclick="document.getElementById('compInput').click()"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-compress text-2xl"></i></div><p class="font-bold text-lg text-slate-700 dark:text-slate-200">Upload Image to Compress</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Supports JPG, PNG, WEBP</p><input type="file" id="compInput" class="hidden" accept="image/*" onchange="handleCompUpload(this)"></div><div id="compInterface" class="hidden mt-8 grid md:grid-cols-2 gap-8"><div class="space-y-6"><div class="bg-white/50 dark:bg-slate-800/50 p-6 rounded-xl border dark:border-slate-700"><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Compression Level</label><input type="range" id="compRange" min="0.1" max="0.9" step="0.1" value="0.7" class="w-full accent-rose-500 cursor-pointer" oninput="updateCompression()"><div class="flex justify-between text-xs text-slate-500 mt-2 font-bold uppercase"><span>Max Compression</span><span id="compQualityDisplay">Quality: 70%</span><span>Best Quality</span></div></div><div class="flex justify-between items-center p-4 bg-slate-100 dark:bg-slate-900 rounded-lg"><div><p class="text-[10px] uppercase font-bold text-slate-500">Original Size</p><p id="compOrigSize" class="font-mono text-rose-600 font-bold">0 KB</p></div><div class="text-right"><p class="text-[10px] uppercase font-bold text-slate-500">New Size (Est)</p><p id="compNewSize" class="font-mono text-green-500 font-bold">0 KB</p></div></div><button onclick="downloadCompressed()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">Download Compressed Image</button></div><div class="flex items-center justify-center bg-black/5 dark:bg-black/40 rounded-xl p-4 border border-white/10"><img id="compPreview" class="max-h-[300px] object-contain rounded shadow-lg" /></div></div></div>`
     },
     bioStyler: {
         title: "Social Bio Styler",
@@ -263,26 +190,8 @@ const tools = {
         icon: "fa-pen-fancy",
         colorClass: "text-pink-500",
         bgClass: "bg-pink-100 dark:bg-pink-900/30",
-        html: `
-            <div class="max-w-2xl mx-auto space-y-6 fade-in">
-                <div class="glass p-6 rounded-2xl shadow-lg border border-white/20"><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Your Text</label><input type="text" id="bioInput" placeholder="Type something cool..." class="w-full p-4 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-pink-500 outline-none shadow-inner text-lg" oninput="generateBioStyles()"></div>
-                <div id="bioOutputs" class="grid gap-4"></div>
-            </div>`
+        html: `<div class="max-w-2xl mx-auto space-y-6 fade-in"><div class="glass p-6 rounded-2xl shadow-lg border border-white/20"><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Your Text</label><input type="text" id="bioInput" placeholder="Type something cool..." class="w-full p-4 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-pink-500 outline-none shadow-inner text-lg" oninput="generateBioStyles()"></div><div id="bioOutputs" class="grid gap-4"></div></div>`
     },
-    urlShrinker: {
-        title: "Link Shrinker",
-        desc: "Shorten long URLs instantly using a free API.",
-        category: "Social",
-        icon: "fa-link",
-        colorClass: "text-sky-500",
-        bgClass: "bg-sky-100 dark:bg-sky-900/30",
-        html: `
-            <div class="max-w-3xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in h-[calc(100vh-200px)] flex flex-col justify-center">
-                <div class="text-center mb-8"><div class="inline-block p-4 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-500 mb-4 text-3xl shadow-sm"><i class="fa-solid fa-link"></i></div><h3 class="text-2xl font-bold text-slate-800 dark:text-white">Paste a Long URL</h3></div>
-                <div class="flex flex-col md:flex-row gap-4 mb-8"><input type="text" id="urlInput" placeholder="https://very-long-website-url.com/xyz..." class="flex-1 p-4 rounded-xl border-0 bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-sky-500 outline-none text-lg shadow-inner"><button onclick="shrinkUrl()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:scale-105 whitespace-nowrap">Shrink It <i class="fa-solid fa-wand-magic-sparkles ml-2"></i></button></div>
-                <div id="urlResult" class="hidden opacity-0 transition-opacity duration-500"><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 ml-1">Shortened URL</label><div class="flex items-center bg-white dark:bg-slate-800 p-2 rounded-xl border border-sky-200 dark:border-sky-800 shadow-sm"><input type="text" id="shortUrlOutput" class="flex-1 p-2 bg-transparent border-none text-sky-600 dark:text-sky-400 font-bold outline-none" readonly><button onclick="copyToClipboard('shortUrlOutput')" class="bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 hover:bg-sky-200 px-4 py-2 rounded-lg font-bold text-sm transition">Copy</button></div></div>
-            </div>`
-    },  
     aiPrompt: {
         title: "AI Prompt Helper",
         desc: "Turn basic ideas into complex prompts for Midjourney or ChatGPT.",
@@ -290,10 +199,25 @@ const tools = {
         icon: "fa-robot",
         colorClass: "text-violet-500",
         bgClass: "bg-violet-100 dark:bg-violet-900/30",
-        html: `
-            <div class="max-w-3xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in">
-                <div class="grid md:grid-cols-2 gap-8"><div class="space-y-5"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Basic Idea</label><input type="text" id="aiBase" placeholder="e.g., Cat in space" class="w-full p-3 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Art Style / Vibe</label><select id="aiStyle" class="w-full p-3 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"><option value="photo">Photorealistic / Cinematic</option><option value="cyberpunk">Cyberpunk / Neon</option><option value="painting">Oil Painting / Classic</option><option value="3d">3D Render / Pixar Style</option><option value="sketch">Pencil Sketch / Minimalist</option></select></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Aspect Ratio</label><select id="aiRatio" class="w-full p-3 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"><option value=" --ar 16:9">Widescreen (16:9)</option><option value=" --ar 1:1">Square (1:1)</option><option value=" --ar 9:16">Portrait (9:16)</option></select></div><button onclick="generatePrompt()" class="w-full bg-gradient-to-r from-violet-500 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Generate Magic</button></div><div class="bg-slate-900 dark:bg-black text-slate-200 p-6 rounded-xl relative shadow-inner border border-white/10 flex flex-col"><label class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Generated Prompt</label><textarea id="aiResult" class="flex-1 w-full bg-transparent border-none resize-none focus:ring-0 text-sm leading-relaxed font-mono" readonly placeholder="Your generated prompt will appear here..."></textarea><button onclick="copyToClipboard('aiResult')" class="self-end mt-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 px-4 rounded-lg transition">Copy to Clipboard</button></div></div>
-            </div>`
+        html: `<div class="max-w-3xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in"><div class="grid md:grid-cols-2 gap-8"><div class="space-y-5"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Basic Idea</label><input type="text" id="aiBase" placeholder="e.g., Cat in space" class="w-full p-3 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Art Style / Vibe</label><select id="aiStyle" class="w-full p-3 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"><option value="photo">Photorealistic / Cinematic</option><option value="cyberpunk">Cyberpunk / Neon</option><option value="painting">Oil Painting / Classic</option><option value="3d">3D Render / Pixar Style</option><option value="sketch">Pencil Sketch / Minimalist</option></select></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Aspect Ratio</label><select id="aiRatio" class="w-full p-3 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none"><option value=" --ar 16:9">Widescreen (16:9)</option><option value=" --ar 1:1">Square (1:1)</option><option value=" --ar 9:16">Portrait (9:16)</option></select></div><button onclick="generatePrompt()" class="w-full bg-gradient-to-r from-violet-500 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Generate Magic</button></div><div class="bg-slate-900 dark:bg-black text-slate-200 p-6 rounded-xl relative shadow-inner border border-white/10 flex flex-col"><label class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Generated Prompt</label><textarea id="aiResult" class="flex-1 w-full bg-transparent border-none resize-none focus:ring-0 text-sm leading-relaxed font-mono" readonly placeholder="Your generated prompt will appear here..."></textarea><button onclick="copyToClipboard('aiResult')" class="self-end mt-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 px-4 rounded-lg transition">Copy to Clipboard</button></div></div></div>`
+    },
+    subtitleConverter: {
+        title: "Subtitle Converter",
+        desc: "Convert YouTube .SRT files to WebVTT or plain text transcripts.",
+        category: "Social",
+        icon: "fa-closed-captioning",
+        colorClass: "text-orange-500",
+        bgClass: "bg-orange-100 dark:bg-orange-900/30",
+        html: `<div class="max-w-3xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in"><div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center hover:bg-white/30 dark:hover:bg-slate-700/30 transition cursor-pointer mb-6 group" onclick="document.getElementById('subInput').click()"><div class="w-14 h-14 bg-orange-100 dark:bg-orange-900/30 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-lines text-2xl"></i></div><p class="font-bold text-slate-700 dark:text-slate-200">Upload .SRT File</p><input type="file" id="subInput" class="hidden" accept=".srt" onchange="handleSubUpload(this)"></div><div class="grid grid-cols-2 gap-4 mb-6"><button onclick="convertSub('vtt')" class="bg-white/50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-4 rounded-xl shadow-sm transition">To .VTT (Web)</button><button onclick="convertSub('txt')" class="bg-white/50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-4 rounded-xl shadow-sm transition">To .TXT (Transcript)</button></div><textarea id="subOutput" class="w-full h-48 p-4 text-xs font-mono bg-slate-900 text-slate-300 rounded-xl resize-none shadow-inner outline-none mb-4" readonly placeholder="Output will appear here..."></textarea><button onclick="downloadSub()" class="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 rounded-xl shadow-lg transition transform hover:-translate-y-1">Download Result</button></div>`
+    },
+    urlShrinker: {
+        title: "URL Shrinker",
+        desc: "Shorten long URLs instantly using the TinyURL API.",
+        category: "Social",
+        icon: "fa-link",
+        colorClass: "text-sky-500",
+        bgClass: "bg-sky-100 dark:bg-sky-900/30",
+        html: `<div class="max-w-3xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in h-[calc(100vh-200px)] flex flex-col justify-center"><div class="text-center mb-8"><div class="inline-block p-4 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-500 mb-4 text-3xl shadow-sm"><i class="fa-solid fa-link"></i></div><h3 class="text-2xl font-bold text-slate-800 dark:text-white">Paste a Long URL</h3></div><div class="flex flex-col md:flex-row gap-4 mb-8"><input type="text" id="urlInput" placeholder="https://very-long-website-url.com/xyz..." class="flex-1 p-4 rounded-xl border-0 bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-sky-500 outline-none text-lg shadow-inner"><button onclick="shrinkUrl()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition transform hover:scale-105 whitespace-nowrap">Shrink It <i class="fa-solid fa-wand-magic-sparkles ml-2"></i></button></div><div id="urlResult" class="hidden opacity-0 transition-opacity duration-500"><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 ml-1">Shortened URL</label><div class="flex items-center bg-white dark:bg-slate-800 p-2 rounded-xl border border-sky-200 dark:border-sky-800 shadow-sm"><input type="text" id="shortUrlOutput" class="flex-1 p-2 bg-transparent border-none text-sky-600 dark:text-sky-400 font-bold outline-none" readonly><button onclick="copyToClipboard('shortUrlOutput')" class="bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 hover:bg-sky-200 px-4 py-2 rounded-lg font-bold text-sm transition">Copy</button></div><div class="mt-4 text-center"><img id="urlQr" class="mx-auto w-32 h-32 rounded-lg border-4 border-white shadow-sm" alt="QR Code"><p class="text-[10px] text-slate-400 mt-2">Auto-generated QR for your link</p></div></div></div>`
     },
     feeCalculator: {
         title: "Freelancer Fee Calculator",
@@ -302,8 +226,43 @@ const tools = {
         icon: "fa-money-bill-wave",
         colorClass: "text-green-500",
         bgClass: "bg-green-100 dark:bg-green-900/30",
-        html: `
-            <div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in"><div class="flex flex-wrap gap-2 justify-center mb-8 bg-white/30 dark:bg-slate-900/30 p-1.5 rounded-full backdrop-blur-sm inline-flex mx-auto w-full"><button onclick="setFeeMode('paypal')" id="btn-paypal" class="fee-tab flex-1 active bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-full font-bold text-sm transition shadow-sm">PayPal</button><button onclick="setFeeMode('upwork')" id="btn-upwork" class="fee-tab flex-1 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-full font-bold text-sm hover:bg-white/50 dark:hover:bg-slate-800/50 transition">Upwork</button><button onclick="setFeeMode('fiverr')" id="btn-fiverr" class="fee-tab flex-1 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-full font-bold text-sm hover:bg-white/50 dark:hover:bg-slate-800/50 transition">Fiverr</button></div><div class="space-y-6"><div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">I want to earn ($)</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400">$</span><input type="number" id="feeInput" class="w-full text-4xl font-bold p-4 pl-10 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 text-slate-800 dark:text-white focus:ring-0 outline-none" placeholder="0.00" oninput="calculateFee()"></div></div><div class="bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 p-6 rounded-xl space-y-4 border border-white/10"><div class="flex justify-between text-sm items-center"><span class="text-slate-500 dark:text-slate-400 font-medium">Platform Fees</span><span class="font-bold text-red-500 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded" id="feeCost">$0.00</span></div><div class="border-t border-slate-300 dark:border-slate-700 pt-4"><p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold mb-1">Ask Client For</p><div class="flex justify-between items-end"><span class="text-3xl font-extrabold text-green-600 dark:text-green-400" id="feeTotal">$0.00</span></div></div></div></div></div>`
+        html: `<div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in"><div class="flex flex-wrap gap-2 justify-center mb-8 bg-white/30 dark:bg-slate-900/30 p-1.5 rounded-full backdrop-blur-sm inline-flex mx-auto w-full"><button onclick="setFeeMode('paypal')" id="btn-paypal" class="fee-tab flex-1 active bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-full font-bold text-sm transition shadow-sm">PayPal</button><button onclick="setFeeMode('upwork')" id="btn-upwork" class="fee-tab flex-1 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-full font-bold text-sm hover:bg-white/50 dark:hover:bg-slate-800/50 transition">Upwork</button><button onclick="setFeeMode('fiverr')" id="btn-fiverr" class="fee-tab flex-1 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-full font-bold text-sm hover:bg-white/50 dark:hover:bg-slate-800/50 transition">Fiverr</button></div><div class="space-y-6"><div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">I want to earn ($)</label><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400">$</span><input type="number" id="feeInput" class="w-full text-4xl font-bold p-4 pl-10 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 text-slate-800 dark:text-white focus:ring-0 outline-none" placeholder="0.00" oninput="calculateFee()"></div></div><div class="bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 p-6 rounded-xl space-y-4 border border-white/10"><div class="flex justify-between text-sm items-center"><span class="text-slate-500 dark:text-slate-400 font-medium">Platform Fees</span><span class="font-bold text-red-500 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded" id="feeCost">$0.00</span></div><div class="border-t border-slate-300 dark:border-slate-700 pt-4"><p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold mb-1">Ask Client For</p><div class="flex justify-between items-end"><span class="text-3xl font-extrabold text-green-600 dark:text-green-400" id="feeTotal">$0.00</span></div></div></div></div></div>`
+    },
+    rateCalculator: {
+        title: "Reverse Income Calculator",
+        desc: "Want to earn $5k/month? Find out your required hourly rate.",
+        category: "Business",
+        icon: "fa-chart-line",
+        colorClass: "text-cyan-500",
+        bgClass: "bg-cyan-100 dark:bg-cyan-900/30",
+        html: `<div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in space-y-6"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Income Goal ($)</label><input type="number" id="incGoal" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="5000" oninput="calcRate()"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Expenses / Overhead ($)</label><input type="number" id="incExp" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="500" oninput="calcRate()"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Billable Hours / Week</label><input type="number" id="incHours" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="20" oninput="calcRate()"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Weeks Off / Year</label><input type="number" id="incVacation" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="4" oninput="calcRate()"></div></div><div class="mt-6 bg-cyan-500/10 dark:bg-cyan-900/30 p-6 rounded-xl text-center border border-cyan-500/20"><p class="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold mb-2">Hourly Rate Required</p><h3 class="text-4xl font-extrabold text-cyan-600 dark:text-cyan-400" id="incResult">$0.00 <span class="text-lg text-slate-400 font-normal">/hr</span></h3></div></div>`
+    },
+    jsonCsv: {
+        title: "JSON to CSV Converter",
+        desc: "Flatten complex JSON data into readable spreadsheets.",
+        category: "Developer",
+        icon: "fa-file-code",
+        colorClass: "text-yellow-500",
+        bgClass: "bg-yellow-100 dark:bg-yellow-900/30",
+        html: `<div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-6 h-auto md:h-[calc(100vh-250px)] fade-in"><div class="flex flex-col min-h-[300px] glass p-4 rounded-xl shadow-lg border border-white/20"><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">JSON Input</label><textarea id="jsonInput" class="flex-1 w-full p-4 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white font-mono text-xs resize-none focus:ring-2 focus:ring-yellow-500 outline-none" placeholder='[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]'></textarea></div><div class="flex flex-col min-h-[300px] glass p-4 rounded-xl shadow-lg border border-white/20"><div class="flex justify-between items-center mb-2"><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">CSV Output</label><button onclick="convertJsonToCsv()" class="text-xs bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition">Convert JSON</button></div><textarea id="csvOutput" class="flex-1 w-full p-4 border-0 rounded-lg bg-slate-900 text-green-400 font-mono text-xs resize-none" readonly></textarea></div></div>`
+    },
+    textUtils: {
+        title: "Text String Utilities",
+        desc: "Case conversion and Slug generation for developers and gamers.",
+        category: "Developer",
+        icon: "fa-font",
+        colorClass: "text-gray-500",
+        bgClass: "bg-gray-100 dark:bg-gray-800",
+        html: `<div class="max-w-3xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in space-y-6"><input type="text" id="strInput" class="w-full text-lg p-4 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-gray-500 outline-none shadow-inner" placeholder="Type or paste text here..." oninput="processString()"><div class="grid gap-3"><div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">Slug</span><input type="text" id="outSlug" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outSlug')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div><div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">UPPER</span><input type="text" id="outUpper" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outUpper')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div><div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">lower</span><input type="text" id="outLower" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outLower')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div><div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">Camel</span><input type="text" id="outCamel" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outCamel')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div><div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">Sponge</span><input type="text" id="outSponge" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outSponge')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div></div></div>`
+    },
+    passwordGenerator: {
+        title: "Secure Password Gen",
+        desc: "Generate strong, random passwords instantly.",
+        category: "Security",
+        icon: "fa-shield-halved",
+        colorClass: "text-rose-500",
+        bgClass: "bg-rose-100 dark:bg-rose-900/30",
+        html: `<div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in text-center"><div class="mb-6"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-lock text-3xl"></i></div><h3 class="text-2xl font-bold dark:text-white">Generate Secure Password</h3></div><div class="relative mb-6"><input type="text" id="passOutput" class="w-full p-4 text-center text-xl font-mono font-bold rounded-xl border-2 border-rose-100 dark:border-rose-900 bg-white dark:bg-slate-900 dark:text-white outline-none" readonly placeholder="Click Generate"><button onclick="copyToClipboard('passOutput')" class="absolute right-2 top-2 bottom-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-sm font-bold text-slate-600 transition">Copy</button></div><div class="flex gap-4 justify-center mb-6"><label class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" id="passSpecial" checked class="accent-rose-500 rounded"> <span>Symbols (!@#)</span></label><label class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" id="passNumbers" checked class="accent-rose-500 rounded"> <span>Numbers (123)</span></label></div><button onclick="generatePass()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold py-4 rounded-xl shadow-lg transform active:scale-95 transition-all"><i class="fa-solid fa-arrows-rotate mr-2"></i> Generate Password</button></div>`
     },
     qrGenerator: {
         title: "QR Suite (Gen & Scan)",
@@ -314,92 +273,87 @@ const tools = {
         bgClass: "bg-emerald-100 dark:bg-emerald-900/30",
         html: `
             <div class="max-w-4xl mx-auto fade-in">
-                <div class="flex justify-center mb-8"><div class="bg-white/50 dark:bg-slate-800/50 p-1 rounded-xl flex shadow-sm"><button onclick="setQrMainMode('generate')" id="btn-qr-gen" class="px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400 transition-all">Generate</button><button onclick="setQrMainMode('scan')" id="btn-qr-scan" class="px-6 py-2 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-600/50 transition-all">Scanner</button></div></div>
-                <div id="qr-mode-generate" class="grid md:grid-cols-2 gap-8"><div class="glass p-8 rounded-2xl shadow-lg border border-white/20 space-y-6"><div class="flex gap-2 p-1 bg-white/30 dark:bg-slate-800/30 rounded-lg"><button onclick="setQrMode('url')" id="qr-tab-url" class="flex-1 py-2 text-sm font-bold rounded-md bg-white dark:bg-slate-700 shadow-sm transition">URL/Text</button><button onclick="setQrMode('wifi')" id="qr-tab-wifi" class="flex-1 py-2 text-sm font-bold rounded-md text-slate-500 transition">WiFi</button></div><div id="qr-input-url"><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Content</label><input type="text" id="qrText" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="https://example.com" value="https://example.com"></div><div id="qr-input-wifi" class="hidden space-y-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Network Name (SSID)</label><input type="text" id="wifiSsid" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="MyWiFi"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Password</label><input type="text" id="wifiPass" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="password123"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Security</label><select id="wifiType" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">No Encryption</option></select></div></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Dark Color</label><input type="color" id="qrDark" class="w-full h-12 rounded-lg cursor-pointer border-0 bg-transparent" value="#0f172a"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Light Color</label><input type="color" id="qrLight" class="w-full h-12 rounded-lg cursor-pointer border-0 bg-transparent" value="#ffffff"></div></div><button onclick="generateQR()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">Generate QR Code</button></div><div class="flex flex-col items-center justify-center glass p-8 rounded-2xl shadow-lg border border-white/20"><div id="qrcode" class="border-4 border-white dark:border-slate-800 p-4 bg-white rounded-xl shadow-inner mb-6"></div><button onclick="downloadQR()" id="qrDownloadBtn" class="hidden bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg font-bold shadow-md transition"><i class="fa-solid fa-download mr-2"></i> Download</button></div></div>
-                <div id="qr-mode-scan" class="hidden max-w-2xl mx-auto"><div class="glass p-8 rounded-2xl shadow-lg border border-white/20 text-center"><h3 class="text-xl font-bold mb-4 dark:text-white">Upload QR Code to Scan</h3><div class="border-2 border-dashed border-emerald-300 dark:border-emerald-900/50 rounded-xl p-10 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group" onclick="document.getElementById('qrScanInput').click()"><i class="fa-solid fa-expand text-4xl text-emerald-500 mb-3 group-hover:scale-110 transition-transform"></i><p class="text-sm text-slate-500 dark:text-slate-400">Click to select image</p><input type="file" id="qrScanInput" class="hidden" accept="image/*" onchange="handleQRScan(this)"></div><div id="qrScanResult" class="hidden mt-6 p-4 bg-white/50 dark:bg-slate-900/50 rounded-xl text-left break-all"><p class="text-xs font-bold uppercase text-slate-500 mb-1">Result:</p><p id="qrScanText" class="text-lg font-mono text-emerald-600 dark:text-emerald-400"></p><button onclick="copyToClipboard('qrScanText')" class="mt-2 text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-200">Copy</button></div></div></div>
-            </div>`
-    },
-    rateCalculator: {
-        title: "Reverse Income Calculator",
-        desc: "Want to earn $5k/month? Find out your required hourly rate.",
-        category: "Business",
-        icon: "fa-chart-line",
-        colorClass: "text-cyan-500",
-        bgClass: "bg-cyan-100 dark:bg-cyan-900/30",
-        html: `
-            <div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in space-y-6">
-                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Income Goal ($)</label><input type="number" id="incGoal" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="5000" oninput="calcRate()"></div>
-                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Monthly Expenses / Overhead ($)</label><input type="number" id="incExp" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="500" oninput="calcRate()"></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Billable Hours / Week</label><input type="number" id="incHours" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="20" oninput="calcRate()"></div><div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Weeks Off / Year</label><input type="number" id="incVacation" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="4" oninput="calcRate()"></div></div>
-                <div class="mt-6 bg-cyan-500/10 dark:bg-cyan-900/30 p-6 rounded-xl text-center border border-cyan-500/20"><p class="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold mb-2">Hourly Rate Required</p><h3 class="text-4xl font-extrabold text-cyan-600 dark:text-cyan-400" id="incResult">$0.00 <span class="text-lg text-slate-400 font-normal">/hr</span></h3></div>
-            </div>`
-    },
-    jsonCsv: {
-        title: "JSON to CSV Converter",
-        desc: "Flatten complex JSON data into readable spreadsheets.",
-        category: "Developer",
-        icon: "fa-file-code",
-        colorClass: "text-yellow-500",
-        bgClass: "bg-yellow-100 dark:bg-yellow-900/30",
-        html: `
-            <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-6 h-auto md:h-[calc(100vh-250px)] fade-in">
-                <div class="flex flex-col min-h-[300px] glass p-4 rounded-xl shadow-lg border border-white/20"><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">JSON Input</label><textarea id="jsonInput" class="flex-1 w-full p-4 border-0 rounded-lg bg-white/50 dark:bg-slate-900/50 dark:text-white font-mono text-xs resize-none focus:ring-2 focus:ring-yellow-500 outline-none" placeholder='[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]'></textarea></div>
-                <div class="flex flex-col min-h-[300px] glass p-4 rounded-xl shadow-lg border border-white/20"><div class="flex justify-between items-center mb-2"><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">CSV Output</label><button onclick="convertJsonToCsv()" class="text-xs bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition">Convert JSON</button></div><textarea id="csvOutput" class="flex-1 w-full p-4 border-0 rounded-lg bg-slate-900 text-green-400 font-mono text-xs resize-none" readonly></textarea></div>
-            </div>`
-    },
-    textUtils: {
-        title: "Text String Utilities",
-        desc: "Case conversion and Slug generation for developers and gamers.",
-        category: "Developer",
-        icon: "fa-font",
-        colorClass: "text-gray-500",
-        bgClass: "bg-gray-100 dark:bg-gray-800",
-        html: `
-            <div class="max-w-3xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in space-y-6">
-                <input type="text" id="strInput" class="w-full text-lg p-4 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-gray-500 outline-none shadow-inner" placeholder="Type or paste text here..." oninput="processString()">
-                <div class="grid gap-3">
-                    <div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">Slug</span><input type="text" id="outSlug" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outSlug')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div>
-                    <div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">UPPER</span><input type="text" id="outUpper" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outUpper')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div>
-                    <div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">lower</span><input type="text" id="outLower" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outLower')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div>
-                    <div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">Camel</span><input type="text" id="outCamel" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outCamel')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div>
-                    <div class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2 rounded-lg"><span class="w-20 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase pl-2">Sponge</span><input type="text" id="outSponge" class="flex-1 p-2 bg-transparent border-none text-sm font-mono dark:text-white focus:ring-0" readonly><button onclick="copyToClipboard('outSponge')" class="p-2 text-slate-400 hover:text-primary"><i class="fa-solid fa-copy"></i></button></div>
-                </div>
-            </div>`
-    },
-    passwordGenerator: {
-        title: "Secure Password Gen",
-        desc: "Generate strong, random passwords instantly.",
-        category: "Security",
-        icon: "fa-shield-halved",
-        colorClass: "text-rose-500",
-        bgClass: "bg-rose-100 dark:bg-rose-900/30",
-        html: `
-            <div class="max-w-xl mx-auto glass p-8 rounded-2xl shadow-lg border border-white/20 fade-in text-center">
-                <div class="mb-6">
-                    <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-lock text-3xl"></i>
+                <div class="flex justify-center mb-8">
+                    <div class="bg-white/50 dark:bg-slate-800/50 p-1 rounded-xl flex shadow-sm">
+                        <button onclick="setQrMainMode('generate')" id="btn-qr-gen" class="px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400 transition-all">Generate</button>
+                        <button onclick="setQrMainMode('scan')" id="btn-qr-scan" class="px-6 py-2 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-600/50 transition-all">Scanner</button>
                     </div>
-                    <h3 class="text-2xl font-bold dark:text-white">Generate Secure Password</h3>
-                </div>
-                
-                <div class="relative mb-6">
-                    <input type="text" id="passOutput" class="w-full p-4 text-center text-xl font-mono font-bold rounded-xl border-2 border-rose-100 dark:border-rose-900 bg-white dark:bg-slate-900 dark:text-white outline-none" readonly placeholder="Click Generate">
-                    <button onclick="copyToClipboard('passOutput')" class="absolute right-2 top-2 bottom-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-sm font-bold text-slate-600 transition">Copy</button>
                 </div>
 
-                <div class="flex gap-4 justify-center mb-6">
-                    <label class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
-                        <input type="checkbox" id="passSpecial" checked class="accent-rose-500 rounded"> <span>Symbols (!@#)</span>
-                    </label>
-                    <label class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
-                        <input type="checkbox" id="passNumbers" checked class="accent-rose-500 rounded"> <span>Numbers (123)</span>
-                    </label>
+                <div id="qr-mode-generate" class="grid md:grid-cols-2 gap-8">
+                    <div class="glass p-8 rounded-2xl shadow-lg border border-white/20 space-y-6">
+                        <div class="flex gap-2 p-1 bg-white/30 dark:bg-slate-800/30 rounded-lg">
+                            <button onclick="setQrMode('url')" id="qr-tab-url" class="flex-1 py-2 text-sm font-bold rounded-md bg-white dark:bg-slate-700 shadow-sm transition">URL/Text</button>
+                            <button onclick="setQrMode('wifi')" id="qr-tab-wifi" class="flex-1 py-2 text-sm font-bold rounded-md text-slate-500 transition">WiFi</button>
+                        </div>
+
+                        <div id="qr-input-url">
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Content</label>
+                            <input type="text" id="qrText" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="https://example.com" value="https://example.com">
+                        </div>
+
+                        <div id="qr-input-wifi" class="hidden space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Network Name (SSID)</label>
+                                <input type="text" id="wifiSsid" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="MyWiFi">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Password</label>
+                                <input type="text" id="wifiPass" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="password123">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Security</label>
+                                <select id="wifiType" class="w-full p-3 border-0 rounded-xl bg-white/50 dark:bg-slate-900/50 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="WPA">WPA/WPA2</option>
+                                    <option value="WEP">WEP</option>
+                                    <option value="nopass">No Encryption</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Dark Color</label>
+                                <input type="color" id="qrDark" class="w-full h-12 rounded-lg cursor-pointer border-0 bg-transparent" value="#0f172a">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Light Color</label>
+                                <input type="color" id="qrLight" class="w-full h-12 rounded-lg cursor-pointer border-0 bg-transparent" value="#ffffff">
+                            </div>
+                        </div>
+                        
+                        <button onclick="generateQR()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                            Generate QR Code
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center glass p-8 rounded-2xl shadow-lg border border-white/20">
+                        <div id="qrcode" class="border-4 border-white dark:border-slate-800 p-4 bg-white rounded-xl shadow-inner mb-6"></div>
+                        <button onclick="downloadQR()" id="qrDownloadBtn" class="hidden bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg font-bold shadow-md transition">
+                            <i class="fa-solid fa-download mr-2"></i> Download
+                        </button>
+                    </div>
                 </div>
 
-                <button onclick="generatePass()" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold py-4 rounded-xl shadow-lg transform active:scale-95 transition-all">
-                    <i class="fa-solid fa-arrows-rotate mr-2"></i> Generate Password
-                </button>
-            </div>`
+                <div id="qr-mode-scan" class="hidden max-w-2xl mx-auto">
+                    <div class="glass p-8 rounded-2xl shadow-lg border border-white/20 text-center">
+                        <h3 class="text-xl font-bold mb-4 dark:text-white">Upload QR Code to Scan</h3>
+                        
+                        <div class="border-2 border-dashed border-emerald-300 dark:border-emerald-900/50 rounded-xl p-10 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group" onclick="document.getElementById('qrScanInput').click()">
+                            <i class="fa-solid fa-expand text-4xl text-emerald-500 mb-3 group-hover:scale-110 transition-transform"></i>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Click to select image</p>
+                            <input type="file" id="qrScanInput" class="hidden" accept="image/*" onchange="handleQRScan(this)">
+                        </div>
+
+                        <div id="qrScanResult" class="hidden mt-6 p-4 bg-white/50 dark:bg-slate-900/50 rounded-xl text-left break-all">
+                            <p class="text-xs font-bold uppercase text-slate-500 mb-1">Result:</p>
+                            <p id="qrScanText" class="text-lg font-mono text-emerald-600 dark:text-emerald-400"></p>
+                            <button onclick="copyToClipboard('qrScanText')" class="mt-2 text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-200">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
     }
 };
 
@@ -407,7 +361,7 @@ const tools = {
 
 function filterDashboard() {
     const query = document.getElementById('dashboardSearch').value.toLowerCase();
-    const categories = document.querySelectorAll('[id^="cat-"]'); // Select category sections
+    const categories = document.querySelectorAll('[id^="cat-"]');
 
     categories.forEach(catSection => {
         const cards = catSection.querySelectorAll('.tool-card');
@@ -418,7 +372,7 @@ function filterDashboard() {
             const desc = card.querySelector('p').innerText.toLowerCase();
             
             if (title.includes(query) || desc.includes(query)) {
-                card.style.display = "flex"; // Ensure layout is correct
+                card.style.display = "flex";
                 card.classList.remove('hidden');
                 hasVisibleCards = true;
             } else {
@@ -426,7 +380,6 @@ function filterDashboard() {
             }
         });
 
-        // Toggle category visibility based on children
         if (hasVisibleCards) {
             catSection.classList.remove('hidden');
         } else {
@@ -443,12 +396,10 @@ function loadWelcomeScreen() {
     titleEl.textContent = "Dashboard";
     descEl.textContent = "Select a tool to get started.";
 
-    // Close sidebar if mobile
     if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
         toggleSidebar();
     }
 
-    // Organize tools by Category
     const categories = {};
     Object.keys(tools).forEach(key => {
         const tool = tools[key];
@@ -468,7 +419,6 @@ function loadWelcomeScreen() {
                     <p class="text-indigo-100 text-lg md:text-xl font-medium mb-8 leading-relaxed max-w-lg">
                         Your ultimate digital swiss army knife. Create, convert, and calculate everything in one place.
                     </p>
-                    
                     <div class="relative max-w-md w-full mb-8 shadow-xl">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                             <i class="fa-solid fa-magnifying-glass text-indigo-200"></i>
@@ -477,7 +427,6 @@ function loadWelcomeScreen() {
                             class="block w-full p-4 pl-11 text-sm text-white border border-white/20 rounded-xl bg-white/10 placeholder-indigo-200 focus:ring-4 focus:ring-white/30 focus:border-white backdrop-blur-md transition-all outline-none" 
                             placeholder="Find a tool (e.g., 'PDF', 'QR Code')...">
                     </div>
-
                     <div class="flex flex-wrap gap-3 justify-center md:justify-start">
                         ${Object.keys(categories).map(cat => `
                             <a href="#cat-${cat.replace(/\s+/g, '-')}" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full text-sm font-bold backdrop-blur-sm transition-all border border-white/10 hover:scale-105">
@@ -494,7 +443,6 @@ function loadWelcomeScreen() {
                     <div class="absolute -top-4 -left-4 w-32 h-32 bg-blue-500/30 rounded-full blur-xl animate-pulse-slow delay-75"></div>
                 </div>
             </div>
-
             <div class="space-y-12">
     `;
 
@@ -512,21 +460,17 @@ function loadWelcomeScreen() {
         `;
 
         categories[cat].forEach(tool => {
-            const delay = delayCounter * 0.05; // Stagger effect
+            const delay = delayCounter * 0.05;
             html += `
                 <div onclick="loadTool('${tool.key}')" 
                      style="animation-delay: ${delay}s"
                      class="slide-up-item cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:border-primary/50 dark:hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 tool-card flex flex-col items-start group relative overflow-hidden">
-                    
                     <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-transparent to-slate-50 dark:to-slate-700/50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-500"></div>
-
                     <div class="w-12 h-12 rounded-xl ${tool.bgClass} ${tool.colorClass} flex items-center justify-center mb-4 text-xl shadow-inner group-hover:scale-110 transition-transform duration-300 z-10">
                         <i class="fa-solid ${tool.icon}"></i>
                     </div>
-                    
                     <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2 z-10 group-hover:text-primary transition-colors">${tool.title}</h3>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 z-10">${tool.desc}</p>
-                    
                     <div class="mt-auto flex items-center text-xs font-bold text-primary opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                         Launch Tool <i class="fa-solid fa-arrow-right ml-2"></i>
                     </div>
@@ -542,11 +486,8 @@ function loadWelcomeScreen() {
     workspace.innerHTML = html;
 }
 
-// Initialize with Welcome Screen
 window.onload = function() {
     loadWelcomeScreen();
-    
-    // Re-apply theme if needed (failsafe)
     if (localStorage.getItem('theme') === 'dark') {
         html.classList.add('dark');
     }
@@ -555,28 +496,25 @@ window.onload = function() {
 // --- Core Functions ---
 
 function loadTool(toolKey) {
-    startProgress(); // Trigger loader
+    startProgress();
     
     const workspace = document.getElementById('workspace');
     const tool = tools[toolKey];
     const titleEl = document.getElementById('tool-title');
     const descEl = document.getElementById('tool-desc');
 
-    // Close mobile menu if open
     if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
         toggleSidebar();
     }
     
-    // Reset Global States
     if(toolKey === 'imageConverter') currentImageBlob = null;
     if(toolKey === 'pdfArchitect') currentPdfFile = null;
-    if(toolKey === 'cvBuilder') cvPhotoData = null; // Reset photo
+    if(toolKey === 'cvBuilder') cvPhotoData = null;
 
     titleEl.textContent = tool.title;
     descEl.textContent = tool.desc;
     workspace.innerHTML = tool.html;
 
-    // Initialize specific tool logic
     if(toolKey === 'qrGenerator') {
        setTimeout(() => {
            generateQR();
@@ -589,7 +527,7 @@ function loadTool(toolKey) {
         }, 100);
     }
     else {
-        setTimeout(endProgress, 300); // Visual flair for instant tools
+        setTimeout(endProgress, 300);
     }
 }
 
@@ -610,8 +548,6 @@ function copyToClipboard(elementId) {
         document.body.removeChild(textArea);
     }
     
-    // Visual feedback
-    // If it's the specific button context
     const btn = event.target.closest('button');
     if(btn) {
         const originalHtml = btn.innerHTML;
@@ -635,18 +571,13 @@ async function runHumanizer() {
     const outputEl = document.getElementById('humanizerOutput');
     const btn = document.getElementById('btnHumanize');
 
-    // Show loading state
     btn.disabled = true;
     btn.innerHTML = '<div class="loader !w-4 !h-4 !border-white mr-2"></div> Processing...';
     
     try {
         if (!humanizerPipeline) {
             statusEl.classList.remove('hidden');
-            
-            // Dynamic Import of Transformers.js
             const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.16.0');
-            
-            // Configure to use local cache
             env.allowLocalModels = false;
             env.useBrowserCache = true;
 
@@ -662,7 +593,6 @@ async function runHumanizer() {
             });
         }
 
-        // Run the model
         const result = await humanizerPipeline("Rewrite this text to be more natural and human-like: " + text, {
             max_new_tokens: 256,
             temperature: 0.9,
@@ -727,26 +657,19 @@ async function generatePDF() {
         const doc = new jsPDF();
 
         if (currentPdfType === 'docx') {
-            // 1. Convert DOCX to HTML using Mammoth
             const arrayBuffer = await currentPdfFile.arrayBuffer();
             const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
             const html = result.value;
-            
-            // 2. Render HTML to hidden div
             const container = document.getElementById('hidden-render-container');
             container.innerHTML = html;
             
-            // 3. Convert that Rendered HTML to PDF canvas
             await doc.html(container, {
                 callback: function(doc) {
                     doc.save(currentPdfFile.name.replace('.docx', '.pdf'));
-                    container.innerHTML = ''; // Cleanup
+                    container.innerHTML = '';
                     endProgress();
                 },
-                x: 10,
-                y: 10,
-                width: 190, // A4 width minus margins
-                windowWidth: 800 // Virtual window width for CSS
+                x: 10, y: 10, width: 190, windowWidth: 800
             });
         } 
         else if (currentPdfType === 'image') {
@@ -755,19 +678,12 @@ async function generatePDF() {
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = function() {
-                    // Calculate aspect ratio to fit A4 (210x297mm)
                     const pageWidth = 210;
                     const pageHeight = 297;
                     const imgRatio = img.width / img.height;
-                    
-                    let w = pageWidth - 20; // 10mm margin
+                    let w = pageWidth - 20; 
                     let h = w / imgRatio;
-                    
-                    if(h > pageHeight - 20) {
-                        h = pageHeight - 20;
-                        w = h * imgRatio;
-                    }
-                    
+                    if(h > pageHeight - 20) { h = pageHeight - 20; w = h * imgRatio; }
                     doc.addImage(img, 'JPEG', 10, 10, w, h);
                     doc.save(currentPdfFile.name.split('.')[0] + '.pdf');
                     endProgress();
@@ -888,7 +804,6 @@ async function handleImageUpload(input) {
         const file = input.files[0];
         originalFileName = file.name.split('.')[0];
         
-        // HEIC Handling
         if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
             const loading = document.getElementById('loadingIndicator');
             loading.classList.remove('hidden');
@@ -897,19 +812,12 @@ async function handleImageUpload(input) {
                 if (typeof heic2any === 'undefined') {
                     throw new Error("HEIC library not loaded");
                 }
-                
-                const blob = await heic2any({
-                    blob: file,
-                    toType: "image/jpeg",
-                    quality: 0.8
-                });
-                
+                const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
                 const url = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
                 
                 document.getElementById('imgPreviewArea').classList.remove('hidden');
                 document.getElementById('previewImg').src = url;
                 currentImageBlob = url;
-                
             } catch (e) {
                 alert("Could not convert HEIC. Please use a standard JPG or PNG.");
                 console.error(e);
@@ -920,7 +828,6 @@ async function handleImageUpload(input) {
             return;
         }
 
-        // Standard Image Handling
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('imgPreviewArea').classList.remove('hidden');
@@ -938,7 +845,7 @@ function convertImage() {
     if(!currentImageBlob) return;
     startProgress();
     
-    setTimeout(() => { // Timeout allows progress bar to show start
+    setTimeout(() => { 
         const format = document.getElementById('convertFormat').value;
         const img = new Image();
         img.crossOrigin = "Anonymous";
@@ -949,7 +856,6 @@ function convertImage() {
             canvas.height = img.height;
             const ctx = canvas.getContext('2d');
             
-            // Fix for JPG transparency turning black
             if (format === 'image/jpeg') {
                 ctx.fillStyle = "#FFFFFF";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -957,7 +863,6 @@ function convertImage() {
             
             ctx.drawImage(img, 0, 0);
             
-            // Convert
             try {
                 const dataUrl = canvas.toDataURL(format);
                 const link = document.createElement('a');
@@ -1019,7 +924,7 @@ function generatePrompt() {
     
     if(!base) return;
 
-    startProgress(); // Simulate AI thinking
+    startProgress(); 
 
     setTimeout(() => {
         let modifiers = "";
@@ -1043,11 +948,9 @@ let feeMode = 'paypal';
 
 function setFeeMode(mode) {
     feeMode = mode;
-    // Reset styles
     document.querySelectorAll('.fee-tab').forEach(el => {
         el.className = "fee-tab flex-1 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-full font-bold text-sm hover:bg-white/50 dark:hover:bg-slate-800/50 transition";
     });
-    // Set active style
     const btn = document.getElementById(`btn-${mode}`);
     btn.className = "fee-tab active flex-1 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-full font-bold text-sm transition shadow-sm";
     
@@ -1060,15 +963,12 @@ function calculateFee() {
     let fee = 0;
 
     if (feeMode === 'paypal') {
-        // Standard domestic 3.49% + $0.49
         total = (amount + 0.49) / (1 - 0.0349);
         fee = total - amount;
     } else if (feeMode === 'upwork') {
-        // Flat 10% on freelancer
         total = amount / 0.9;
         fee = total - amount;
     } else if (feeMode === 'fiverr') {
-        // Flat 20%
         total = amount / 0.8;
         fee = total - amount;
     }
@@ -1094,7 +994,6 @@ function setQrMainMode(mode) {
         contentGen.classList.remove('hidden');
         contentScan.classList.add('hidden');
     } else {
-        // Init Scanner Lib only when needed
         loadScript("https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js")
             .catch(() => alert("Failed to load scanner library"));
 
@@ -1134,7 +1033,7 @@ function generateQR() {
         text = `WIFI:S:${ssid};T:${type};P:${pass};;`;
     }
 
-    container.innerHTML = ""; // Clear previous
+    container.innerHTML = "";
     document.getElementById('qrDownloadBtn').classList.add('hidden');
 
     if(text) {
@@ -1147,7 +1046,6 @@ function generateQR() {
             correctLevel : QRCode.CorrectLevel.H
         });
         
-        // Show download button after slight delay
         setTimeout(() => {
             const img = container.querySelector('img');
             if(img) document.getElementById('qrDownloadBtn').classList.remove('hidden');
@@ -1228,13 +1126,10 @@ function convertSub(type) {
     setTimeout(() => {
         let result = "";
         if(type === 'vtt') {
-            // Basic SRT to VTT: Add Header, change comma to dot
             result = "WEBVTT\n\n" + currentSubContent.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
         } else if (type === 'txt') {
-            // Strip timestamps and numbers
             const lines = currentSubContent.split('\n');
             lines.forEach(line => {
-                // Check if line is NOT a number and NOT a timestamp
                 if(!line.match(/^\d+$/) && !line.match(/\d{2}:\d{2}:\d{2}/)) {
                     if(line.trim() !== "") result += line + " ";
                 }
@@ -1285,10 +1180,8 @@ function convertJsonToCsv() {
         const headers = Object.keys(json[0]);
         const csvRows = [];
         
-        // Add header
         csvRows.push(headers.join(','));
 
-        // Add values
         for(const row of json) {
             const values = headers.map(header => {
                 const escaped = (''+row[header]).replace(/"/g, '\\"');
@@ -1308,26 +1201,16 @@ function convertJsonToCsv() {
 // --- 12. Text Utils Logic ---
 function processString() {
     const str = document.getElementById('strInput').value;
-    
-    // Slug
     document.getElementById('outSlug').value = str.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
-    
-    // Upper
     document.getElementById('outUpper').value = str.toUpperCase();
-    
-    // Lower
     document.getElementById('outLower').value = str.toLowerCase();
-    
-    // Camel
     document.getElementById('outCamel').value = str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
         return index === 0 ? word.toLowerCase() : word.toUpperCase();
     }).replace(/\s+/g, '');
-
-    // SpongeBob
     document.getElementById('outSponge').value = str.split('').map((char, i) => i % 2 === 0 ? char.toLowerCase() : char.toUpperCase()).join('');
 }
 
-// --- 13. CV Builder Logic (Enhanced) ---
+// --- 13. CV Builder Logic ---
 let cvPhotoData = null;
 
 function handleCVPhoto(input) {
@@ -1363,91 +1246,22 @@ function updateCVPreview() {
     const preview = document.getElementById('cvPreviewArea');
     let html = '';
 
-    // Helpers
     const photoHtml = cvPhotoData ? `<div class="mb-4"><img src="${cvPhotoData}" style="width:100px; height:100px; border-radius:50%; object-fit:cover;"></div>` : '';
     const contactLine = [email, phone, address, web].filter(x => x).join(' • ');
 
     switch(template) {
-        case '1': // Minimalist Clean
-            html = `
-                <div class="cv-t1 text-left">
-                    ${photoHtml}
-                    <h1>${name}</h1>
-                    <p class="text-xl text-gray-600">${job}</p>
-                    <div class="text-sm mt-2 border-b pb-4">${contactLine}</div>
-                    <p class="mt-4 italic">${summary}</p>
-                    <div class="mt-4"><h3 class="font-bold border-b mb-2">Experience</h3><p>${exp}</p></div>
-                    <div class="mt-4"><h3 class="font-bold border-b mb-2">Education</h3><p>${edu}</p></div>
-                    <div class="mt-4"><h3 class="font-bold border-b mb-2">Skills</h3><p>${skills}</p></div>
-                </div>`;
+        case '1':
+            html = `<div class="cv-t1 text-left">${photoHtml}<h1>${name}</h1><p class="text-xl text-gray-600">${job}</p><div class="text-sm mt-2 border-b pb-4">${contactLine}</div><p class="mt-4 italic">${summary}</p><div class="mt-4"><h3 class="font-bold border-b mb-2">Experience</h3><p>${exp}</p></div><div class="mt-4"><h3 class="font-bold border-b mb-2">Education</h3><p>${edu}</p></div><div class="mt-4"><h3 class="font-bold border-b mb-2">Skills</h3><p>${skills}</p></div></div>`;
             break;
-        case '2': // Modern Blue
-            html = `
-                <div class="cv-t2">
-                    <div class="cv-t2-sidebar">
-                        ${cvPhotoData ? `<img src="${cvPhotoData}" style="width:120px; height:120px; border-radius:50%; margin-bottom:20px; object-fit:cover; border:3px solid white;">` : ''}
-                        <h2 class="text-2xl font-bold mb-2">${name}</h2>
-                        <p class="mb-4 text-blue-200">${job}</p>
-                        <div class="text-xs mb-6 space-y-1">
-                            <div>${email}</div>
-                            <div>${phone}</div>
-                            <div>${address}</div>
-                            <div>${web}</div>
-                        </div>
-                        <h3 class="font-bold border-b border-blue-400 mb-2 mt-4">Skills</h3>
-                        <p class="text-sm">${skills}</p>
-                        <h3 class="font-bold border-b border-blue-400 mb-2 mt-8">Education</h3>
-                        <p class="text-sm">${edu}</p>
-                    </div>
-                    <div class="cv-t2-main">
-                        <h3 class="text-xl font-bold text-blue-900 mb-2">Profile</h3>
-                        <p>${summary}</p>
-                        <h3 class="text-xl font-bold text-blue-900 mb-2 mt-6">Experience</h3>
-                        <p>${exp}</p>
-                    </div>
-                </div>`;
+        case '2':
+            html = `<div class="cv-t2"><div class="cv-t2-sidebar">${cvPhotoData ? `<img src="${cvPhotoData}" style="width:120px; height:120px; border-radius:50%; margin-bottom:20px; object-fit:cover; border:3px solid white;">` : ''}<h2 class="text-2xl font-bold mb-2">${name}</h2><p class="mb-4 text-blue-200">${job}</p><div class="text-xs mb-6 space-y-1"><div>${email}</div><div>${phone}</div><div>${address}</div><div>${web}</div></div><h3 class="font-bold border-b border-blue-400 mb-2 mt-4">Skills</h3><p class="text-sm">${skills}</p><h3 class="font-bold border-b border-blue-400 mb-2 mt-8">Education</h3><p class="text-sm">${edu}</p></div><div class="cv-t2-main"><h3 class="text-xl font-bold text-blue-900 mb-2">Profile</h3><p>${summary}</p><h3 class="text-xl font-bold text-blue-900 mb-2 mt-6">Experience</h3><p>${exp}</p></div></div>`;
             break;
-        // ... (Keep existing templates, updated with contactLine/Photo logic where appropriate) ...
-        case '10': // Tech Stack
-             html = `
-                <div class="p-8 font-sans h-full">
-                    <div class="flex justify-between items-start border-b-4 border-indigo-600 pb-6 mb-6">
-                        <div>
-                            <h1 class="text-5xl font-extrabold tracking-tight text-slate-900">${name}</h1>
-                            <div class="text-indigo-600 font-mono text-lg mt-2">${job}</div>
-                        </div>
-                        ${cvPhotoData ? `<img src="${cvPhotoData}" style="width:100px; height:100px; border-radius:10px; object-fit:cover;">` : ''}
-                    </div>
-                    <div class="flex gap-8">
-                        <div class="w-2/3">
-                            <h3 class="font-bold text-slate-900 text-lg mt-6 mb-3">SUMMARY</h3>
-                            <p class="text-slate-600 mb-6">${summary}</p>
-                            <h3 class="font-bold text-slate-900 text-lg mb-3">EXPERIENCE</h3>
-                            <div class="pl-4 border-l-2 border-slate-200">${exp}</div>
-                        </div>
-                        <div class="w-1/3 bg-slate-50 p-4 rounded text-sm">
-                            <div class="mb-4 font-mono text-slate-500 text-xs">
-                                ${email}<br>${phone}<br>${address}<br>${web}
-                            </div>
-                            <h3 class="font-bold text-slate-900 mb-2">EDUCATION</h3>
-                            <p class="text-slate-600 mb-6">${edu}</p>
-                            <h3 class="font-bold text-slate-900 mb-2">SKILLS</h3>
-                            <div class="flex flex-wrap gap-2">
-                                ${skills.split(',').map(s => `<span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded font-bold">${s.trim()}</span>`).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+        case '10':
+             html = `<div class="p-8 font-sans h-full"><div class="flex justify-between items-start border-b-4 border-indigo-600 pb-6 mb-6"><div><h1 class="text-5xl font-extrabold tracking-tight text-slate-900">${name}</h1><div class="text-indigo-600 font-mono text-lg mt-2">${job}</div></div>${cvPhotoData ? `<img src="${cvPhotoData}" style="width:100px; height:100px; border-radius:10px; object-fit:cover;">` : ''}</div><div class="flex gap-8"><div class="w-2/3"><h3 class="font-bold text-slate-900 text-lg mt-6 mb-3">SUMMARY</h3><p class="text-slate-600 mb-6">${summary}</p><h3 class="font-bold text-slate-900 text-lg mb-3">EXPERIENCE</h3><div class="pl-4 border-l-2 border-slate-200">${exp}</div></div><div class="w-1/3 bg-slate-50 p-4 rounded text-sm"><div class="mb-4 font-mono text-slate-500 text-xs">${email}<br>${phone}<br>${address}<br>${web}</div><h3 class="font-bold text-slate-900 mb-2">EDUCATION</h3><p class="text-slate-600 mb-6">${edu}</p><h3 class="font-bold text-slate-900 mb-2">SKILLS</h3><div class="flex flex-wrap gap-2">${skills.split(',').map(s => `<span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded font-bold">${s.trim()}</span>`).join('')}</div></div></div></div>`;
             break;
         default:
-             html = `
-                <div class="cv-t1 text-left">
-                    <h1>${name}</h1>
-                    <p>${job}</p>
-                    <p>${summary}</p>
-                </div>`;
+             html = `<div class="cv-t1 text-left"><h1>${name}</h1><p>${job}</p><p>${summary}</p></div>`;
     }
-
     preview.innerHTML = html;
 }
 
@@ -1456,15 +1270,13 @@ async function downloadCV() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     const element = document.getElementById('cvPreviewArea');
-    
-    // Temporary scale up for better resolution
     const originalWidth = element.style.width;
-    element.style.width = '210mm'; // Force A4 width
+    element.style.width = '210mm'; 
 
     await doc.html(element, {
         callback: function(doc) {
             doc.save('resume.pdf');
-            element.style.width = originalWidth; // Restore
+            element.style.width = originalWidth; 
             endProgress();
         },
         x: 0,
@@ -1473,31 +1285,24 @@ async function downloadCV() {
         windowWidth: 800
     });
 }
+
 // --- 14. Image Compressor Logic ---
 let compOriginalFile = null;
 
 function handleCompUpload(input) {
     if (input.files && input.files[0]) {
         compOriginalFile = input.files[0];
-        
-        // Show file size
         document.getElementById('compOrigSize').innerText = (compOriginalFile.size / 1024).toFixed(2) + " KB";
-        
-        // Show interface
         document.getElementById('compUploadBox').classList.add('hidden');
         document.getElementById('compInterface').classList.remove('hidden');
-        
-        // Initial Compression
         updateCompression();
     }
 }
 
 function updateCompression() {
     if(!compOriginalFile) return;
-    
     const quality = parseFloat(document.getElementById('compRange').value);
     document.getElementById('compQualityDisplay').innerText = `Quality: ${(quality * 100).toFixed(0)}%`;
-    
     const reader = new FileReader();
     reader.onload = function(e) {
         const img = new Image();
@@ -1508,12 +1313,8 @@ function updateCompression() {
             canvas.height = img.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
-            
-            // Compress
             const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
             document.getElementById('compPreview').src = compressedDataUrl;
-            
-            // Estimate Size (Base64 length * 0.75 is approx binary size)
             const head = 'data:image/jpeg;base64,';
             const size = Math.round((compressedDataUrl.length - head.length) * 3 / 4);
             document.getElementById('compNewSize').innerText = (size / 1024).toFixed(2) + " KB";
@@ -1525,7 +1326,6 @@ function updateCompression() {
 function downloadCompressed() {
     const dataUrl = document.getElementById('compPreview').src;
     if(!dataUrl) return;
-    
     const link = document.createElement('a');
     link.download = "compressed-image.jpg";
     link.href = dataUrl;
@@ -1543,24 +1343,16 @@ async function shrinkUrl() {
     btn.disabled = true;
 
     try {
-        // Using TinyURL API (CORS friendly often, but if it fails, we catch it)
         const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
-        
         if (!response.ok) throw new Error("Network response was not ok");
-        
         const shortUrl = await response.text();
-        
         document.getElementById('shortUrlOutput').value = shortUrl;
-        
-        // Generate a QR for it using an external API for simplicity here
         document.getElementById('urlQr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shortUrl)}`;
-        
         const resultArea = document.getElementById('urlResult');
         resultArea.classList.remove('hidden');
         setTimeout(() => resultArea.classList.remove('opacity-0'), 50);
-
     } catch (error) {
-        alert("Could not shrink URL. The URL might be invalid or the service is temporarily blocked by your browser security.");
+        alert("Could not shrink URL. The URL might be invalid or the service is temporarily blocked.");
         console.error(error);
     } finally {
         btn.innerHTML = originalText;
@@ -1584,7 +1376,6 @@ function generatePass() {
     for (let i = 0, n = charset.length; i < length; ++i) {
         retVal += charset.charAt(Math.floor(Math.random() * n));
     }
-    
     const out = document.getElementById('passOutput');
     if(out) out.value = retVal;
 }
