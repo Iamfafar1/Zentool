@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+.dark .glass {
+    background: rgba(15, 23, 42, 0.7);
+}
+
+/* Animated Gradient Background */
+.animated-bg {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+.dark .animated-bg {
+    background: linear-gradient(-45deg, #1e1b4b, #312e81, #1e293b, #0f172a);
+    background-size: 400% 400%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+.tool-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tool-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.loader {
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid #6366f1;
+    width: 24px;
+    height: 24px;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Document Styles for PDF Rendering */
+#hidden-render-container {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 790px; /* A4 width roughly */
+    background: white;
+    color: black;
+    padding: 40px;
+    font-family: serif;
+}
+#hidden-render-container img { max-width: 100%; height: auto; }
+#hidden-render-container p { margin-bottom: 1em; line-height: 1.5; }
+#hidden-render-container h1, #hidden-render-container h2 { margin-top: 1em; margin-bottom: 0.5em; font-weight: bold; }
+
+/* CV Templates CSS */
+.cv-preview { background: white; color: black; min-height: 297mm; width: 100%; padding: 0; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+
+/* Template 1: Minimalist */
+.cv-t1 { padding: 40px; font-family: sans-serif; }
+.cv-t1 h1 { font-size: 2.5rem; border-bottom: 2px solid #333; margin-bottom: 10px; }
+.cv-t1 h2 { font-size: 1.2rem; color: #555; margin-top: 20px; text-transform: uppercase; font-weight: bold; }
+
+/* Template 2: Modern Blue */
+.cv-t2 { display: grid; grid-template-columns: 1fr 2fr; height: 100%; }
+.cv-t2-sidebar { background: #1e3a8a; color: white; padding: 30px; }
+.cv-t2-main { padding: 30px; background: #fff; }
+.cv-t2 h1 { color: #1e3a8a; font-size: 2.5rem; }
+
+/* Template 3: Creative Pink */
+.cv-t3 { padding: 40px; font-family: 'Courier New', monospace; background: #fff0f5; }
+.cv-t3 h1 { color: #db2777; text-align: center; font-size: 3rem; }
+.cv-t3 .section { border-left: 4px solid #db2777; padding-left: 15px; margin-bottom: 20px; }
+
+/* Template 4: Corporate Grey */
+.cv-t4 { padding: 50px; font-family: 'Times New Roman', serif; }
+.cv-t4-header { text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 20px; margin-bottom: 30px; }
+.cv-t4 h1 { font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; }
