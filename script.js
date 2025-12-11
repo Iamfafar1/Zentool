@@ -805,8 +805,7 @@ const tools = {
             </div>
         `
     }
-}
-,
+},
 passwordGenerator: {
         title: "Secure Password Gen",
         desc: "Generate strong, random passwords instantly.",
@@ -2028,4 +2027,5 @@ async function shrinkUrl() {
     }
 
 }
+
 
