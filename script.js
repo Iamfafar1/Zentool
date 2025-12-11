@@ -1796,6 +1796,7 @@ function loadInvoiceJSON(input) {
         reader.readAsText(input.files[0]);
     }
 
+}
 
 
 
