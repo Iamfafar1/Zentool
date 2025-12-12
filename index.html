@@ -4,38 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZenTool - Ultimate Converter Suite</title>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "ZenTool Suite",
-  "url": "https://zentool.me",
-  "image": "https://zentool.me/logo.svg",
-  "author": {
-    "@type": "Person",
-    "name": "Fardin Islam"
-  },
-  "applicationCategory": "UtilitiesApplication",
-  "operatingSystem": "Web Browser"
-}
-</script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ZenTool Suite",
+      "url": "https://zentool.me",
+      "image": "https://zentool.me/logo.svg",
+      "logo": "https://zentool.me/logo.svg",
+      "author": {
+        "@type": "Person",
+        "name": "Fardin Islam"
+      },
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web Browser",
+      "description": "Free online tools for developers and freelancers. Convert images, generate invoices, and more locally."
+    }
+    </script>
+
     <meta name="google-site-verification" content="kOW6tUOIeTLazMn9UBDiE16KmBwMLFVlRRyvtokSf2E" />
     
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7252201391916021"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7252201391916021" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link rel="icon" type="image/svg+xml" href="logo.svg">
-<link rel="alternate icon" href="favicon.ico">
-<link rel="apple-touch-icon" href="logo.svg">
 
-</script>
     <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="logo.svg">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="animated-bg h-screen flex overflow-hidden text-slate-800 dark:text-slate-100 transition-colors duration-500">
@@ -61,164 +63,53 @@
     <aside id="sidebar" class="glass w-64 flex-shrink-0 flex flex-col transition-transform transform -translate-x-full md:translate-x-0 fixed top-0 left-0 md:relative z-40 h-full border-r border-white/20 dark:border-slate-700/50 pt-20 md:pt-0 backdrop-blur-xl">
         <div class="p-6 border-b border-slate-200/50 dark:border-slate-700/50 hidden md:block cursor-pointer" onclick="loadWelcomeScreen()">
             <div class="flex items-center">
-    <img src="logo.svg" class="w-10 h-10 mr-3 drop-shadow-md" alt="Logo">
-    <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-        ZenTool
-    </h1>
-</div>
+                <img src="logo.svg" class="w-10 h-10 mr-3 drop-shadow-md" alt="Logo">
+                <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                    ZenTool
+                </h1>
+            </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium uppercase tracking-widest">Ultimate Suite</p>
         </div>
 
         <nav class="flex-1 overflow-y-auto p-4 space-y-8">
-            
             <div>
                 <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-3">Documents & PDF</h3>
                 <ul class="space-y-1">
-                    <li>
-                        <button onclick="loadTool('cvBuilder')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-id-card"></i></span>
-                            <span class="font-medium">CV Builder</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('pdfArchitect')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-pdf"></i></span>
-                            <span class="font-medium">PDF Architect</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('docTools')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-nib"></i></span>
-                            <span class="font-medium">DocuSmith</span>
-                        </button>
-                    </li>
+                    <li><button onclick="loadTool('cvBuilder')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-id-card"></i></span><span class="font-medium">CV Builder</span></button></li>
+                    <li><button onclick="loadTool('pdfArchitect')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-pdf"></i></span><span class="font-medium">PDF Architect</span></button></li>
+                    <li><button onclick="loadTool('docTools')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-nib"></i></span><span class="font-medium">DocuSmith</span></button></li>
                 </ul>
             </div>
-
             <div>
                 <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-3">Media & Images</h3>
                 <ul class="space-y-1">
-                    <li>
-                        <button onclick="loadTool('imageConverter')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-image"></i></span>
-                            <span class="font-medium">File Converter</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('imageCompressor')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-compress"></i></span>
-                            <span class="font-medium">Image Compressor</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('qrGenerator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-qrcode"></i></span>
-                            <span class="font-medium">QR Generator</span>
-                        </button>
-                    </li>
+                    <li><button onclick="loadTool('imageConverter')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-image"></i></span><span class="font-medium">File Converter</span></button></li>
+                    <li><button onclick="loadTool('imageCompressor')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-compress"></i></span><span class="font-medium">Image Compressor</span></button></li>
+                    <li><button onclick="loadTool('qrGenerator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-qrcode"></i></span><span class="font-medium">QR Generator</span></button></li>
                 </ul>
             </div>
-
-            <div>
-                <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-3">Social & Creators</h3>
-                <ul class="space-y-1">
-                    <li>
-                        <button onclick="loadTool('urlShrinker')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-link"></i></span>
-                            <span class="font-medium">URL Shrinker</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('textHumanizer')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
-                            <span class="font-medium">AI Text Humanizer</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('bioStyler')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-900/30 text-pink-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-pen-fancy"></i></span>
-                            <span class="font-medium">Bio Styler</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('aiPrompt')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-robot"></i></span>
-                            <span class="font-medium">AI Prompt Helper</span>
-                        </button>
-                    </li>
-                     <li>
-                        <button onclick="loadTool('subtitleConverter')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-closed-captioning"></i></span>
-                            <span class="font-medium">Subtitle Tool</span>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-
             <div>
                 <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-3">Business & Money</h3>
                 <ul class="space-y-1">
-                    <li>
-                        <button onclick="loadTool('feeCalculator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-money-bill-wave"></i></span>
-                            <span class="font-medium">Fee Calculator</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('rateCalculator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-line"></i></span>
-                            <span class="font-medium">Rate Calculator</span>
-                        </button>
-                    </li>
-                    <li>
-    <button onclick="loadTool('invoiceGenerator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-        <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-invoice-dollar"></i></span>
-        <span class="font-medium">Invoice Gen</span>
-    </button>
-</li>
+                    <li><button onclick="loadTool('feeCalculator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-money-bill-wave"></i></span><span class="font-medium">Fee Calculator</span></button></li>
+                    <li><button onclick="loadTool('rateCalculator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-line"></i></span><span class="font-medium">Rate Calculator</span></button></li>
+                    <li><button onclick="loadTool('invoiceGenerator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-invoice-dollar"></i></span><span class="font-medium">Invoice Gen</span></button></li>
                 </ul>
             </div>
-
              <div>
-                <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-3">Developer & Text</h3>
+                <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-3">Social & Developers</h3>
                 <ul class="space-y-1">
-                    <li>
-                        <button onclick="loadTool('jsonCsv')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-code"></i></span>
-                            <span class="font-medium">JSON to CSV</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button onclick="loadTool('textUtils')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                            <span class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-font"></i></span>
-                            <span class="font-medium">Case & Slug</span>
-                        </button>
-                    </li>
+                    <li><button onclick="loadTool('textHumanizer')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span class="font-medium">AI Text Humanizer</span></button></li>
+                    <li><button onclick="loadTool('urlShrinker')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-link"></i></span><span class="font-medium">URL Shrinker</span></button></li>
+                    <li><button onclick="loadTool('jsonCsv')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group"><span class="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-code"></i></span><span class="font-medium">JSON to CSV</span></button></li>
                 </ul>
             </div>
-             <div>
-    <h3 class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-3">Security</h3>
-    <ul class="space-y-1">
-        <li>
-            <button onclick="loadTool('passwordGenerator')" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 hover:text-primary transition flex items-center group">
-                <span class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform"><i class="fa-solid fa-shield-halved"></i></span>
-                <span class="font-medium">Password Gen</span>
-            </button>
-        </li>
-    </ul>
-</div>
- 
         </nav>
         
         <div class="p-6 border-t border-slate-200/50 dark:border-slate-700/50 text-center">
             <div class="inline-block p-3 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-white/20 backdrop-blur-md">
                 <p class="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Architected By</p>
                 <p class="font-bold text-sm bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Fardin Islam</p>
-                <div class="flex justify-center gap-2 mt-2 text-xs text-slate-400">
-                    <i class="fa-solid fa-code"></i>
-                    <i class="fa-solid fa-mug-hot"></i>
-                    <i class="fa-solid fa-rocket"></i>
-                </div>
             </div>
         </div>
     </aside>
@@ -235,21 +126,57 @@
         </header>
 
         <div id="workspace" class="flex-1 overflow-y-auto p-4 md:p-8 pb-20 md:pb-8 scroll-smooth">
+            <div class="max-w-7xl mx-auto pb-10">
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-2xl mb-12 p-8 md:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div class="z-10 max-w-2xl">
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight drop-shadow-md">
+                            <span class="block text-white/90 text-lg font-bold uppercase tracking-widest mb-2">Welcome to</span>
+                            ZenTool Suite
+                        </h1>
+                        <p class="text-indigo-100 text-lg md:text-xl font-medium mb-8 leading-relaxed max-w-lg">
+                            Free online tools for developers and freelancers. Convert images, generate invoices, resize PDFs, and more—all running locally in your browser for maximum privacy.
+                        </p>
+                        <div class="relative max-w-md w-full mb-8 shadow-xl">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass text-indigo-200"></i>
+                            </div>
+                            <input type="text" id="dashboardSearch" oninput="filterDashboard()" 
+                                class="block w-full p-4 pl-11 text-sm text-white border border-white/20 rounded-xl bg-white/10 placeholder-indigo-200 focus:ring-4 focus:ring-white/30 focus:border-white backdrop-blur-md transition-all outline-none" 
+                                placeholder="Find a tool (e.g., 'PDF', 'QR Code')...">
+                        </div>
+                    </div>
+                    <div class="relative z-0">
+                        <img src="logo.svg" class="w-48 h-48 md:w-64 md:h-64 drop-shadow-2xl animate-float" alt="ZenTool Logo">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div onclick="loadTool('cvBuilder')" class="cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-primary/10 transition-all group"><div class="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-id-card"></i></div><h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">CV Builder Pro</h3><p class="text-sm text-slate-500 dark:text-slate-400">Professional resumes with photo support and 10 templates.</p></div>
+                    <div onclick="loadTool('pdfArchitect')" class="cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-primary/10 transition-all group"><div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-file-pdf"></i></div><h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">PDF Architect</h3><p class="text-sm text-slate-500 dark:text-slate-400">Convert Word/Images to PDF or convert Documents.</p></div>
+                    <div onclick="loadTool('invoiceGenerator')" class="cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-primary/10 transition-all group"><div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-file-invoice-dollar"></i></div><h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">Invoice Generator</h3><p class="text-sm text-slate-500 dark:text-slate-400">Create professional PDF invoices instantly.</p></div>
+                    <div onclick="loadTool('imageConverter')" class="cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-primary/10 transition-all group"><div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-image"></i></div><h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">Image Converter</h3><p class="text-sm text-slate-500 dark:text-slate-400">Convert HEIC/WebP to PNG/JPG securely.</p></div>
+                    <div onclick="loadTool('qrGenerator')" class="cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-primary/10 transition-all group"><div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-qrcode"></i></div><h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">QR Suite</h3><p class="text-sm text-slate-500 dark:text-slate-400">Generate colorful QR codes or Scan existing ones.</p></div>
+                    <div onclick="loadTool('textHumanizer')" class="cursor-pointer p-6 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:shadow-primary/10 transition-all group"><div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-500 flex items-center justify-center mb-4 text-xl"><i class="fa-solid fa-wand-magic-sparkles"></i></div><h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">AI Text Humanizer</h3><p class="text-sm text-slate-500 dark:text-slate-400">Rewrite robotic AI text to sound more natural.</p></div>
+                </div>
+
+                <div class="mt-16 p-8 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-slate-200 dark:border-slate-700/50">
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">About ZenTool Suite</h2>
+                    <p class="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
+                        ZenTool is a comprehensive collection of free online utilities designed for freelancers, developers, and content creators. 
+                        Unlike other services, ZenTool operates as a <strong>Zero-Backend utility</strong>, meaning your files (images, PDFs, documents) 
+                        are processed entirely within your web browser. This ensures your data never leaves your device, providing maximum privacy and security.
+                    </p>
+                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Whether you need to generate a freelance invoice, convert a HEIC image to JPG, or create a professional CV, 
+                        ZenTool offers a fast, ad-supported free solution without the need for sign-ups or subscriptions.
+                    </p>
+                </div>
             </div>
+        </div>
     </main>
 
     <div id="overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
 
     <script src="script.js"></script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
