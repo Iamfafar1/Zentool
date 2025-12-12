@@ -669,11 +669,13 @@ function loadWelcomeScreenInternal(pushState = true) {
     loadWelcomeScreen();
     startProgress();
     setTimeout(endProgress, 300);
+    
+    // NOTE: For GitHub Pages (or index.html), pushing to window.location.pathname usually just pushes /index.html
+    const dashboardURL = window.location.pathname;
 
     if (pushState) {
         // Push the dashboard state to history
-        // Using window.location.pathname ensures it works with gh-pages base URL
-        history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', window.location.pathname);
+        history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', dashboardURL);
     }
 }
 
@@ -737,7 +739,6 @@ function loadToolInternal(toolKey, pushState = true) {
     // PUSH STATE LOGIC: Only run if the function wasn't called by a popstate event (i.e., it was a fresh click)
     if (pushState) {
         // Change the URL hash and push a new history state
-        // Use window.location.pathname to maintain the base URL, and append hash
         history.pushState({ toolKey: toolKey }, tool.title, `${window.location.pathname}#${toolKey}`);
     }
 }
@@ -745,13 +746,24 @@ function loadToolInternal(toolKey, pushState = true) {
 
 // OVERRIDE PUBLIC FUNCTIONS to enforce history management
 
+/**
+ * FIX FOR HOME BUTTON: We must ensure the `onclick` handler in the HTML logo/sidebar 
+ * doesn't cause unexpected navigation behavior by preventing the default action.
+ * * NOTE: The HTML already has onclick="loadWelcomeScreen()", so we just need to ensure 
+ * the function definition is robust.
+ */
+
 // 1. The main loadTool function called by HTML buttons now uses loadToolInternal and pushes state.
 window.loadTool = function(toolKey) {
     loadToolInternal(toolKey, true); 
 }
 
 // 2. The main loadWelcomeScreen function called by HTML buttons/links now uses Internal and pushes state.
-window.loadWelcomeScreen = function() {
+window.loadWelcomeScreen = function(event) {
+    // Add event parameter check and prevent default behavior for logo links
+    if (event && event.preventDefault) {
+        event.preventDefault(); 
+    }
     loadWelcomeScreenInternal(true);
 }
 
@@ -766,11 +778,10 @@ window.onload = function() {
     }
     
     // 2. Check current URL hash to load the correct screen on direct access/reload
-    // We check both the hash and the state object (for browser refresh)
     if (window.location.hash.length > 1) {
         const toolKey = window.location.hash.substring(1);
         if (tools[toolKey]) {
-            // Use replaceState here to clean up the initial history entry before loading tool
+            // Load tool screen and replace the initial history entry
              history.replaceState({ toolKey: toolKey }, tools[toolKey].title, window.location.href);
             loadToolInternal(toolKey, false); 
         } else {
