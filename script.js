@@ -30,9 +30,20 @@ tailwind.config = {
 // --- Dynamic Script Loader ---
 function loadScript(src) {
     return new Promise((resolve, reject) => {
+        // Check if the script is already loaded
         if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+        
+        // Check if the script is currently loading
+        if (document.querySelector(`script[data-loading="${src}"]`)) {
+            const script = document.querySelector(`script[data-loading="${src}"]`);
+            script.addEventListener('load', resolve);
+            script.addEventListener('error', reject);
+            return;
+        }
+
         const script = document.createElement('script');
         script.src = src;
+        script.setAttribute('data-loading', src); 
         script.onload = resolve;
         script.onerror = reject;
         document.head.appendChild(script);
@@ -66,6 +77,7 @@ const html = document.documentElement;
 const themeIcon = document.getElementById('theme-icon');
 const mobileThemeIcon = document.getElementById('mobile-theme-icon');
 
+// Initial Theme Set
 if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     html.classList.add('dark');
     updateThemeIcons(true);
@@ -127,7 +139,7 @@ function endProgress() {
     }
 }
 
-// --- Tool Definitions ---
+// --- Tool Definitions (Keep all 16 tools as they are) ---
 const tools = {
     textHumanizer: {
         title: "AI Text Humanizer",
@@ -481,19 +493,26 @@ function filterDashboard() {
             const title = card.querySelector('h3').innerText.toLowerCase();
             const desc = card.querySelector('p').innerText.toLowerCase();
             
-            if (title.includes(query) || desc.includes(query)) {
-                card.style.display = "flex";
+            // Check visibility using display property
+            const isVisible = title.includes(query) || desc.includes(query);
+            
+            if (isVisible) {
+                // Must ensure it's displayed, Tailwind utility 'flex' is correct here
+                card.style.display = "flex"; 
                 card.classList.remove('hidden');
                 hasVisibleCards = true;
             } else {
                 card.classList.add('hidden');
+                card.style.display = "none"; // Ensure absolute hiding
             }
         });
 
         if (hasVisibleCards) {
             catSection.classList.remove('hidden');
+            catSection.style.display = "block";
         } else {
             catSection.classList.add('hidden');
+            catSection.style.display = "none";
         }
     });
 }
@@ -518,8 +537,7 @@ function loadWelcomeScreen() {
         categories[catName].push({ key, ...tool });
     });
 
-    // START: Dynamic generation of the entire Dashboard content.
-    // This is necessary to include ALL tools and ensure the JS logic (like filterDashboard) works.
+    // START: Dynamic generation of the entire Dashboard content (All 16 tools)
     let html = `
         <div class="max-w-7xl mx-auto pb-10">
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-2xl mb-12 p-8 md:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 fade-in">
@@ -595,7 +613,7 @@ function loadWelcomeScreen() {
     
     html += `</div>`; // Close space-y-12 div
 
-    // About Section (SEO Content) - Re-rendered here to ensure it's always included in the JS-populated dashboard
+    // About Section (SEO Content - Must match index.html for crawler)
     html += `
         <div class="mt-16 p-8 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-slate-200 dark:border-slate-700/50">
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">About ZenTool Suite</h2>
@@ -615,78 +633,109 @@ function loadWelcomeScreen() {
     // END: Dynamic generation
 
     workspace.innerHTML = html;
-}
-
-window.onload = function() {
-    // The loadWelcomeScreen() now must execute to ensure all tools are clickable 
-    // and the search/filter logic is applied to the dynamically rendered content.
-    loadWelcomeScreen();
-    // This part is redundant as loadWelcomeScreen does nothing if the user is not on a dark theme,
-    // but keep it for logic consistency.
-    if (localStorage.getItem('theme') === 'dark') {
-        html.classList.add('dark');
-    }
-    // Also call filterDashboard to initialize the search field listener
+    
+    // Attach listener to search bar after it's rendered
     const searchInput = document.getElementById('dashboardSearch');
     if (searchInput) {
         searchInput.addEventListener('input', filterDashboard);
     }
+}
+
+// Global variable to hold the original loadTool function reference
+let originalLoadTool;
+
+function initializeLoadTool() {
+    // Check if we have defined loadTool globally yet
+    if (typeof loadTool === 'undefined') {
+        window.loadTool = function(toolKey) {
+            startProgress();
+            
+            const workspace = document.getElementById('workspace');
+            const tool = tools[toolKey];
+            const titleEl = document.getElementById('tool-title');
+            const descEl = document.getElementById('tool-desc');
+
+            if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                toggleSidebar();
+            }
+            
+            if(toolKey === 'imageConverter') currentImageBlob = null;
+            if(toolKey === 'pdfArchitect') currentPdfFile = null;
+            if(toolKey === 'cvBuilder') cvPhotoData = null;
+
+            titleEl.textContent = tool.title;
+            descEl.textContent = tool.desc;
+            workspace.innerHTML = tool.html;
+
+            // Tool-specific Initialization
+            if(toolKey === 'qrGenerator') {
+               loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(() => {
+                    generateQR();
+                    endProgress();
+               }).catch(() => {
+                    console.error("Failed to load QR library.");
+                    endProgress();
+               });
+            } else if (toolKey === 'cvBuilder') {
+                setTimeout(() => {
+                    updateCVPreview();
+                    endProgress();
+                }, 100);
+            }
+            else if (toolKey === 'invoiceGenerator') {
+                // Check if html2canvas and jspdf are loaded globally before initInvoice
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js").then(() => {
+                    initInvoice();
+                    endProgress();
+                }).catch(() => {
+                    console.error("Failed to load html2canvas library.");
+                    initInvoice();
+                    endProgress();
+                });
+            }
+            else if (toolKey === 'textHumanizer') {
+                 // The promise is handled inside runHumanizer on click, just end progress here
+                 setTimeout(endProgress, 300);
+            }
+            else {
+                setTimeout(endProgress, 300);
+            }
+        };
+        // Store reference to the newly defined global loadTool
+        originalLoadTool = window.loadTool;
+    } else {
+        // Handle the case where the function might have been previously overridden (like for invoiceGenerator)
+        // Ensure that any custom logic (like initInvoice) runs after the main tool loading logic.
+        const originalLogic = window.loadTool;
+        window.loadTool = function(toolKey) {
+             originalLogic(toolKey);
+             if (toolKey === 'invoiceGenerator') setTimeout(initInvoice, 100);
+        };
+        originalLoadTool = window.loadTool; // Update the reference if needed
+    }
+}
+
+window.onload = function() {
+    // 1. Initialize the Load Tool function
+    initializeLoadTool(); 
+
+    // 2. Load the full dashboard using JS (replaces the static 6-tool HTML with 16 tools)
+    loadWelcomeScreen();
+    
+    // 3. Set theme (done outside of loadWelcomeScreen to be cleaner)
+    if (localStorage.getItem('theme') === 'dark') {
+        html.classList.add('dark');
+    }
 };
 
-// --- Core Functions ---
+// --- Core Functions (kept mostly the same for stability, but ensuring scope) ---
 
+// Defining loadTool globally for accessibility, overridden above for initialization logic
 function loadTool(toolKey) {
-    startProgress();
-    
-    const workspace = document.getElementById('workspace');
-    const tool = tools[toolKey];
-    const titleEl = document.getElementById('tool-title');
-    const descEl = document.getElementById('tool-desc');
-
-    if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
-        toggleSidebar();
-    }
-    
-    if(toolKey === 'imageConverter') currentImageBlob = null;
-    if(toolKey === 'pdfArchitect') currentPdfFile = null;
-    if(toolKey === 'cvBuilder') cvPhotoData = null;
-
-    titleEl.textContent = tool.title;
-    descEl.textContent = tool.desc;
-    workspace.innerHTML = tool.html;
-
-    if(toolKey === 'qrGenerator') {
-       setTimeout(() => {
-           // Ensure the external library QRCode is loaded before calling generateQR
-           loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(() => {
-                generateQR();
-                endProgress();
-           }).catch(() => {
-                console.error("Failed to load QR library.");
-                endProgress();
-           });
-    } else if (toolKey === 'cvBuilder') {
-        setTimeout(() => {
-            updateCVPreview();
-            endProgress();
-        }, 100);
-    }
-    else if (toolKey === 'invoiceGenerator') {
-        setTimeout(() => {
-            // Ensure html2canvas is loaded if needed for invoice PDF logic
-            loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js").then(() => {
-                initInvoice();
-                endProgress();
-            }).catch(() => {
-                console.error("Failed to load html2canvas library.");
-                initInvoice();
-                endProgress();
-            });
-        }, 100);
-    }
-    else {
-        setTimeout(endProgress, 300);
-    }
+    // This function will be properly defined and overridden in initializeLoadTool()
+    // It exists here only to satisfy the HTML calls before JS initialization fully runs
+    console.warn("loadTool not fully initialized yet. Attempting late execution.");
+    if (originalLoadTool) originalLoadTool(toolKey);
 }
 
 function copyToClipboard(elementId) {
@@ -735,6 +784,7 @@ async function runHumanizer() {
     try {
         if (!humanizerPipeline) {
             statusEl.classList.remove('hidden');
+            // Dynamically import Xenova library
             const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.16.0');
             env.allowLocalModels = false;
             env.useBrowserCache = true;
@@ -815,10 +865,7 @@ async function generatePDF() {
         const doc = new jsPDF();
 
         if (currentPdfType === 'docx') {
-            // Mammoth library needs to be loaded if not already
-            if (typeof mammoth === 'undefined') {
-                 await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
-            }
+            // Mammoth library is pre-loaded in index.html
             
             const arrayBuffer = await currentPdfFile.arrayBuffer();
             const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
@@ -864,7 +911,7 @@ async function generatePDF() {
 
     } catch (e) {
         console.error(e);
-        alert("Error converting file. Please ensure it is a valid format.");
+        alert("Error converting file. Please ensure it is a valid format and the mammoth library loaded.");
         endProgress();
     }
 }
@@ -972,11 +1019,8 @@ async function handleImageUpload(input) {
             loading.classList.remove('hidden');
             
             try {
-                // Ensure heic2any library is loaded if not already
-                if (typeof heic2any === 'undefined') {
-                    await loadScript("https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js");
-                }
-
+                // heic2any is pre-loaded in index.html
+                
                 const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
                 const url = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
                 
@@ -1159,8 +1203,9 @@ function setQrMainMode(mode) {
         contentGen.classList.remove('hidden');
         contentScan.classList.add('hidden');
     } else {
+        // Load jsQR only when the scanner is selected
         loadScript("https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js")
-            .catch(() => alert("Failed to load scanner library"));
+            .catch(() => console.error("Failed to load scanner library"));
 
         btnScan.className = "px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400 transition-all";
         btnGen.className = "px-6 py-2 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-600/50 transition-all";
@@ -1527,16 +1572,13 @@ async function shrinkUrl() {
         btn.disabled = false;
     }
 }
-// --- 16. Password Generator Logic (Missing in previous version, adding a dummy for completeness) ---
+// --- 16. Password Generator Logic ---
 function generatePass() {
-    const length = 16; // Fixed length for simplicity, often driven by a slider/input
+    const length = 16; 
     let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     
     if (document.getElementById('passSpecial').checked) {
         chars += '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
-    }
-    if (document.getElementById('passNumbers').checked) {
-        // Numbers already included, this is more for a visual checkbox effect
     }
     
     let password = '';
@@ -1549,7 +1591,7 @@ function generatePass() {
 // --- 17. Invoice Generator Logic ---
 let invItems = [{desc: "Web Development Services", qty: 1, price: 500}];
 let invLogoData = null; 
-let invSigData = null; // Store signature
+let invSigData = null; 
 
 function initInvoice() {
     if(!document.getElementById('invItemsInput')) return;
@@ -1559,11 +1601,14 @@ function initInvoice() {
     updateInvoicePreview();
 }
 
+// This logic is now handled in initializeLoadTool, removing the duplicate override
+/*
 const originalLoadToolForInv = loadTool; 
 loadTool = function(toolKey) {
     originalLoadToolForInv(toolKey);
     if(toolKey === 'invoiceGenerator') setTimeout(initInvoice, 100);
 }
+*/
 
 function handleInvLogo(input) {
     if (input.files && input.files[0]) {
@@ -1801,12 +1846,7 @@ function updateInvoicePreview() {
 function downloadInvoicePDF() {
     startProgress();
     const element = document.getElementById('invoicePreview');
-    // Ensure html2canvas is loaded before calling
-    if (typeof html2canvas === 'undefined') {
-        alert("PDF dependency (html2canvas) not loaded. Please try refreshing.");
-        endProgress();
-        return;
-    }
+    // html2canvas is pre-loaded in index.html
     
     html2canvas(element, { scale: 3, useCORS: true }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
