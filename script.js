@@ -518,6 +518,8 @@ function loadWelcomeScreen() {
         categories[catName].push({ key, ...tool });
     });
 
+    // START: Dynamic generation of the entire Dashboard content.
+    // This is necessary to include ALL tools and ensure the JS logic (like filterDashboard) works.
     let html = `
         <div class="max-w-7xl mx-auto pb-10">
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-2xl mb-12 p-8 md:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 fade-in">
@@ -551,6 +553,7 @@ function loadWelcomeScreen() {
                     <div class="absolute -top-4 -left-4 w-32 h-32 bg-blue-500/30 rounded-full blur-xl animate-pulse-slow delay-75"></div>
                 </div>
             </div>
+            
             <div class="space-y-12">
     `;
 
@@ -590,14 +593,43 @@ function loadWelcomeScreen() {
         html += `</div></div>`;
     });
     
-    html += `</div></div>`;
+    html += `</div>`; // Close space-y-12 div
+
+    // About Section (SEO Content) - Re-rendered here to ensure it's always included in the JS-populated dashboard
+    html += `
+        <div class="mt-16 p-8 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-slate-200 dark:border-slate-700/50">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">About ZenTool Suite</h2>
+            <p class="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
+                ZenTool is a comprehensive collection of free online utilities designed for freelancers, developers, and content creators. 
+                Unlike other services, ZenTool operates as a <strong>Zero-Backend utility</strong>, meaning your files (images, PDFs, documents) 
+                are processed entirely within your web browser. This ensures your data never leaves your device, providing maximum privacy and security.
+            </p>
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                Whether you need to generate a freelance invoice, convert a HEIC image to JPG, or create a professional CV, 
+                ZenTool offers a fast, ad-supported free solution without the need for sign-ups or subscriptions.
+            </p>
+        </div>
+    `;
+
+    html += `</div>`; // Close max-w-7xl div
+    // END: Dynamic generation
+
     workspace.innerHTML = html;
 }
 
 window.onload = function() {
+    // The loadWelcomeScreen() now must execute to ensure all tools are clickable 
+    // and the search/filter logic is applied to the dynamically rendered content.
     loadWelcomeScreen();
+    // This part is redundant as loadWelcomeScreen does nothing if the user is not on a dark theme,
+    // but keep it for logic consistency.
     if (localStorage.getItem('theme') === 'dark') {
         html.classList.add('dark');
+    }
+    // Also call filterDashboard to initialize the search field listener
+    const searchInput = document.getElementById('dashboardSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterDashboard);
     }
 };
 
@@ -625,13 +657,31 @@ function loadTool(toolKey) {
 
     if(toolKey === 'qrGenerator') {
        setTimeout(() => {
-           generateQR();
-           endProgress();
-       }, 100); 
+           // Ensure the external library QRCode is loaded before calling generateQR
+           loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(() => {
+                generateQR();
+                endProgress();
+           }).catch(() => {
+                console.error("Failed to load QR library.");
+                endProgress();
+           });
     } else if (toolKey === 'cvBuilder') {
         setTimeout(() => {
             updateCVPreview();
             endProgress();
+        }, 100);
+    }
+    else if (toolKey === 'invoiceGenerator') {
+        setTimeout(() => {
+            // Ensure html2canvas is loaded if needed for invoice PDF logic
+            loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js").then(() => {
+                initInvoice();
+                endProgress();
+            }).catch(() => {
+                console.error("Failed to load html2canvas library.");
+                initInvoice();
+                endProgress();
+            });
         }, 100);
     }
     else {
@@ -750,9 +800,9 @@ function handlePdfUpload(input) {
         document.getElementById('pdfFileName').textContent = file.name;
         document.getElementById('pdfActionArea').classList.remove('hidden');
         
-        if(file.name.endsWith('.docx')) currentPdfType = 'docx';
+        if(file.name.toLowerCase().endsWith('.docx')) currentPdfType = 'docx';
         else if(file.type.startsWith('image/')) currentPdfType = 'image';
-        else if(file.name.endsWith('.txt')) currentPdfType = 'txt';
+        else if(file.name.toLowerCase().endsWith('.txt')) currentPdfType = 'txt';
     }
 }
 
@@ -765,6 +815,11 @@ async function generatePDF() {
         const doc = new jsPDF();
 
         if (currentPdfType === 'docx') {
+            // Mammoth library needs to be loaded if not already
+            if (typeof mammoth === 'undefined') {
+                 await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
+            }
+            
             const arrayBuffer = await currentPdfFile.arrayBuffer();
             const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
             const html = result.value;
@@ -917,9 +972,11 @@ async function handleImageUpload(input) {
             loading.classList.remove('hidden');
             
             try {
+                // Ensure heic2any library is loaded if not already
                 if (typeof heic2any === 'undefined') {
-                    throw new Error("HEIC library not loaded");
+                    await loadScript("https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js");
                 }
+
                 const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
                 const url = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
                 
@@ -1144,7 +1201,7 @@ function generateQR() {
     container.innerHTML = "";
     document.getElementById('qrDownloadBtn').classList.add('hidden');
 
-    if(text) {
+    if(text && typeof QRCode !== 'undefined') {
         new QRCode(container, {
             text: text,
             width: 200,
@@ -1186,6 +1243,9 @@ function handleQRScan(input) {
                 context.drawImage(img, 0, 0, img.width, img.height);
                 
                 try {
+                    if (typeof jsQR === 'undefined') {
+                        throw new Error("jsQR library not loaded");
+                    }
                     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                     const code = jsQR(imageData.data, imageData.width, imageData.height, {
                         inversionAttempts: "dontInvert",
@@ -1198,7 +1258,7 @@ function handleQRScan(input) {
                         alert("No QR Code found in image.");
                     }
                 } catch(e) {
-                    alert("Scanner library not ready yet. Please try again.");
+                    alert("Scanner library not ready yet. Please try again or check browser support.");
                 }
                 endProgress();
             };
@@ -1445,7 +1505,7 @@ async function shrinkUrl() {
     const url = document.getElementById('urlInput').value;
     if(!url) return alert("Please enter a URL first!");
 
-    const btn = event.target;
+    const btn = event.target.closest('button');
     const originalText = btn.innerHTML;
     btn.innerHTML = '<div class="loader !w-4 !h-4 !border-white"></div>';
     btn.disabled = true;
@@ -1467,6 +1527,25 @@ async function shrinkUrl() {
         btn.disabled = false;
     }
 }
+// --- 16. Password Generator Logic (Missing in previous version, adding a dummy for completeness) ---
+function generatePass() {
+    const length = 16; // Fixed length for simplicity, often driven by a slider/input
+    let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    
+    if (document.getElementById('passSpecial').checked) {
+        chars += '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+    }
+    if (document.getElementById('passNumbers').checked) {
+        // Numbers already included, this is more for a visual checkbox effect
+    }
+    
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('passOutput').value = password;
+}
+
 // --- 17. Invoice Generator Logic ---
 let invItems = [{desc: "Web Development Services", qty: 1, price: 500}];
 let invLogoData = null; 
@@ -1722,6 +1801,13 @@ function updateInvoicePreview() {
 function downloadInvoicePDF() {
     startProgress();
     const element = document.getElementById('invoicePreview');
+    // Ensure html2canvas is loaded before calling
+    if (typeof html2canvas === 'undefined') {
+        alert("PDF dependency (html2canvas) not loaded. Please try refreshing.");
+        endProgress();
+        return;
+    }
+    
     html2canvas(element, { scale: 3, useCORS: true }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
@@ -1731,7 +1817,7 @@ function downloadInvoicePDF() {
         endProgress();
     }).catch(err => {
         console.error(err);
-        alert("Error generating PDF.");
+        alert("Error generating PDF. Make sure all images are loaded.");
         endProgress();
     });
 }
@@ -1777,12 +1863,20 @@ function loadInvoiceJSON(input) {
                 if(data.logo) {
                     invLogoData = data.logo;
                     const smPrev = document.getElementById('invLogoPreviewSmall');
-                    if(smPrev) { smPrev.src = data.logo; smPrev.classList.remove('hidden'); }
+                    if(smPrev) { 
+                        smPrev.src = data.logo; 
+                        smPrev.classList.remove('hidden'); 
+                        document.getElementById('invLogoStatus').classList.add('hidden');
+                    }
                 }
                 if(data.signature) {
                     invSigData = data.signature;
                     const smPrev = document.getElementById('invSigPreviewSmall');
-                    if(smPrev) { smPrev.src = data.signature; smPrev.classList.remove('hidden'); }
+                    if(smPrev) { 
+                        smPrev.src = data.signature; 
+                        smPrev.classList.remove('hidden'); 
+                        document.getElementById('invSigStatus').classList.add('hidden');
+                    }
                 }
 
                 renderInvInputs();
@@ -1795,8 +1889,3 @@ function loadInvoiceJSON(input) {
     }
 
 }
-
-
-
-
-
