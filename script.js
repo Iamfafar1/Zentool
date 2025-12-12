@@ -31,7 +31,10 @@ tailwind.config = {
 // --- Dynamic Script Loader ---
 function loadScript(src) {
     return new Promise((resolve, reject) => {
+        // Check if the script is already loaded
         if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+        
+        // Check if the script is currently loading
         if (document.querySelector(`script[data-loading="${src}"]`)) {
             const script = document.querySelector(`script[data-loading="${src}"]`);
             script.addEventListener('load', resolve);
@@ -645,12 +648,16 @@ function loadWelcomeScreen() {
 
 // Function to handle the browser's back/forward buttons
 function handlePopState(event) {
-    // Check if the state exists and has a tool key, load that tool
+    // If the state exists and has a tool key, load that tool
     if (event.state && event.state.toolKey && event.state.toolKey !== 'dashboard') {
         // Use the internal loading function, specifying NOT to push a new state
         loadToolInternal(event.state.toolKey, false); 
     } 
-    // If state is dashboard or null (going past the first state), load the welcome screen
+    // If state is dashboard, load the welcome screen
+    else if (event.state && event.state.toolKey === 'dashboard') {
+        loadWelcomeScreenInternal(false);
+    }
+    // If state is null or the hash is empty, assume we should load the dashboard
     else {
         loadWelcomeScreenInternal(false); 
     }
@@ -658,17 +665,14 @@ function handlePopState(event) {
 
 // Internal function to load the welcome screen without manipulating history
 function loadWelcomeScreenInternal(pushState = true) {
-    // RENDER FULL 16-TOOL DASHBOARD
+    // Call the original rendering function
     loadWelcomeScreen();
     startProgress();
     setTimeout(endProgress, 300);
-    
-    const dashboardURL = window.location.pathname;
 
     if (pushState) {
         // Push the dashboard state to history
-        // Replacing state ensures the home button doesn't create an infinite history loop
-        history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', dashboardURL);
+        history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', '/');
     }
 }
 
@@ -694,7 +698,7 @@ function loadToolInternal(toolKey, pushState = true) {
     descEl.textContent = tool.desc;
     workspace.innerHTML = tool.html;
 
-    // Run tool-specific Initialization logic
+    // Run tool-specific Initialization logic (copied from the previous version)
     if(toolKey === 'qrGenerator') {
         if (typeof QRCode === 'undefined') {
             loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(generateQR).finally(endProgress);
@@ -712,6 +716,7 @@ function loadToolInternal(toolKey, pushState = true) {
         }, 100);
     }
     else if (toolKey === 'invoiceGenerator') {
+        // Dependencies are pre-loaded in index.html
         setTimeout(() => {
             initInvoice();
             endProgress();
@@ -729,10 +734,10 @@ function loadToolInternal(toolKey, pushState = true) {
     }
     
 
-    // PUSH STATE LOGIC
+    // PUSH STATE LOGIC: Only run if the function wasn't called by a popstate event (i.e., it was a fresh click)
     if (pushState) {
         // Change the URL hash and push a new history state
-        history.pushState({ toolKey: toolKey }, tool.title, `${window.location.pathname}#${toolKey}`);
+        history.pushState({ toolKey: toolKey }, tool.title, `/#${toolKey}`);
     }
 }
 
@@ -741,17 +746,12 @@ function loadToolInternal(toolKey, pushState = true) {
 
 // 1. The main loadTool function called by HTML buttons now uses loadToolInternal and pushes state.
 window.loadTool = function(toolKey) {
-    // This is the function called by the sidebar buttons
     loadToolInternal(toolKey, true); 
 }
 
 // 2. The main loadWelcomeScreen function called by HTML buttons/links now uses Internal and pushes state.
-// This is the function called by the logo/sidebar button: onclick="loadWelcomeScreen()"
-window.loadWelcomeScreen = function(event) {
-    // Ensure the default link action (which might navigate to index.html and break the SPA) is prevented.
-    if (event && event.preventDefault) {
-        event.preventDefault(); 
-    }
+// We must re-define this function entirely to avoid removing the custom logic from the HTML buttons/sidebar links.
+window.loadWelcomeScreen = function() {
     loadWelcomeScreenInternal(true);
 }
 
@@ -769,19 +769,17 @@ window.onload = function() {
     if (window.location.hash.length > 1) {
         const toolKey = window.location.hash.substring(1);
         if (tools[toolKey]) {
-            // Load tool screen and replace the initial history entry (to allow the back button to work)
-             history.replaceState({ toolKey: toolKey }, tools[toolKey].title, window.location.href);
+            // Load tool screen but do NOT push state (since we are already on the correct URL/state)
             loadToolInternal(toolKey, false); 
         } else {
-             // Hash exists but is invalid, load dashboard
+             // Hash exists but is invalid, load dashboard, do NOT push state
             loadWelcomeScreenInternal(false);
         }
     }
-    // 3. If no hash, ensure the dashboard state is set as the initial history entry
+    // 3. If no hash, load the dashboard as the starting point.
     else {
-        // Load dashboard, and use replaceState to set the initial "dashboard" state
-        loadWelcomeScreenInternal(false);
-        history.replaceState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', window.location.pathname);
+        // Load dashboard, and push the initial "dashboard" state to history
+        loadWelcomeScreenInternal(true);
     }
 };
 
@@ -1167,7 +1165,7 @@ function convertImage() {
 const fontMaps = {
     bold: "𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙",
     italic: "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡",
-    script: "𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜𝐵𝒞𝒟𝐸𝒯𝒢𝐻𝐼𝒥𝒦𝐿𝑀𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝐙",
+    script: "𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜𝐵𝒞𝒟𝐸𝒯𝒢𝐻𝐼𝒥𝒦𝐿𝑀𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵",
     normal: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 };
 
@@ -1888,7 +1886,7 @@ function updateInvoicePreview() {
 
     } else {
         html = `
-            <div class="p-12 font-sans relative bg-white">
+            <div class="p-12 font-sans h-full relative bg-white">
                 ${watermarkHtml}
                 <div class="flex justify-between items-start mb-12 border-b-2 border-emerald-500 pb-8 relative z-10">
                     <div>
