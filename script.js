@@ -139,7 +139,7 @@ function endProgress() {
     }
 }
 
-// --- Tool Definitions (Keep all 16 tools as they are) ---
+// --- Tool Definitions (16 Tools) ---
 const tools = {
     textHumanizer: {
         title: "AI Text Humanizer",
@@ -645,75 +645,72 @@ function loadWelcomeScreen() {
 let originalLoadTool;
 
 function initializeLoadTool() {
-    // Check if we have defined loadTool globally yet
-    if (typeof loadTool === 'undefined') {
-        window.loadTool = function(toolKey) {
-            startProgress();
-            
-            const workspace = document.getElementById('workspace');
-            const tool = tools[toolKey];
-            const titleEl = document.getElementById('tool-title');
-            const descEl = document.getElementById('tool-desc');
+    // Define the global loadTool function (which might be called by the static HTML before window.onload runs)
+    window.loadTool = function(toolKey) {
+        startProgress();
+        
+        const workspace = document.getElementById('workspace');
+        const tool = tools[toolKey];
+        const titleEl = document.getElementById('tool-title');
+        const descEl = document.getElementById('tool-desc');
 
-            if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
-                toggleSidebar();
-            }
-            
-            if(toolKey === 'imageConverter') currentImageBlob = null;
-            if(toolKey === 'pdfArchitect') currentPdfFile = null;
-            if(toolKey === 'cvBuilder') cvPhotoData = null;
+        if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+            toggleSidebar();
+        }
+        
+        if(toolKey === 'imageConverter') currentImageBlob = null;
+        if(toolKey === 'pdfArchitect') currentPdfFile = null;
+        if(toolKey === 'cvBuilder') cvPhotoData = null;
 
-            titleEl.textContent = tool.title;
-            descEl.textContent = tool.desc;
-            workspace.innerHTML = tool.html;
+        titleEl.textContent = tool.title;
+        descEl.textContent = tool.desc;
+        workspace.innerHTML = tool.html;
 
-            // Tool-specific Initialization
-            if(toolKey === 'qrGenerator') {
-               loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(() => {
-                    generateQR();
-                    endProgress();
-               }).catch(() => {
-                    console.error("Failed to load QR library.");
-                    endProgress();
-               });
-            } else if (toolKey === 'cvBuilder') {
-                setTimeout(() => {
-                    updateCVPreview();
-                    endProgress();
-                }, 100);
+        // Tool-specific Initialization
+        if(toolKey === 'qrGenerator') {
+            if (typeof QRCode === 'undefined') {
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(generateQR).finally(endProgress);
+            } else {
+                generateQR();
+                endProgress();
             }
-            else if (toolKey === 'invoiceGenerator') {
-                // Check if html2canvas and jspdf are loaded globally before initInvoice
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js").then(() => {
-                    initInvoice();
-                    endProgress();
-                }).catch(() => {
-                    console.error("Failed to load html2canvas library.");
-                    initInvoice();
-                    endProgress();
-                });
+        } else if (toolKey === 'cvBuilder') {
+            if (typeof window.jspdf === 'undefined') {
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js").finally(endProgress);
             }
-            else if (toolKey === 'textHumanizer') {
-                 // The promise is handled inside runHumanizer on click, just end progress here
-                 setTimeout(endProgress, 300);
+            setTimeout(() => {
+                updateCVPreview();
+                endProgress();
+            }, 100);
+        }
+        else if (toolKey === 'invoiceGenerator') {
+            // Check if dependencies are loaded before initInvoice
+            if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+                // Assuming you pre-load both in index.html, just wait for the functions to be available
+                console.warn("Invoice dependencies not ready, relying on HTML pre-load.");
             }
-            else {
-                setTimeout(endProgress, 300);
+            setTimeout(() => {
+                initInvoice();
+                endProgress();
+            }, 100);
+        }
+        else if (toolKey === 'pdfArchitect' || toolKey === 'docTools') {
+            // Check if dependencies are loaded for PDF/DOC tools
+            if (typeof window.jspdf === 'undefined') {
+                console.error("jsPDF dependency failed to load.");
+                alert("PDF functionality is unavailable. Please check your internet connection and hard refresh.");
             }
-        };
-        // Store reference to the newly defined global loadTool
-        originalLoadTool = window.loadTool;
-    } else {
-        // Handle the case where the function might have been previously overridden (like for invoiceGenerator)
-        // Ensure that any custom logic (like initInvoice) runs after the main tool loading logic.
-        const originalLogic = window.loadTool;
-        window.loadTool = function(toolKey) {
-             originalLogic(toolKey);
-             if (toolKey === 'invoiceGenerator') setTimeout(initInvoice, 100);
-        };
-        originalLoadTool = window.loadTool; // Update the reference if needed
-    }
+            setTimeout(endProgress, 300);
+        }
+        else {
+            setTimeout(endProgress, 300);
+        }
+    };
+    
+    // Store reference to the final loadTool
+    originalLoadTool = window.loadTool;
 }
+
 
 window.onload = function() {
     // 1. Initialize the Load Tool function
@@ -722,21 +719,13 @@ window.onload = function() {
     // 2. Load the full dashboard using JS (replaces the static 6-tool HTML with 16 tools)
     loadWelcomeScreen();
     
-    // 3. Set theme (done outside of loadWelcomeScreen to be cleaner)
+    // 3. Set theme
     if (localStorage.getItem('theme') === 'dark') {
         html.classList.add('dark');
     }
 };
 
 // --- Core Functions (kept mostly the same for stability, but ensuring scope) ---
-
-// Defining loadTool globally for accessibility, overridden above for initialization logic
-function loadTool(toolKey) {
-    // This function will be properly defined and overridden in initializeLoadTool()
-    // It exists here only to satisfy the HTML calls before JS initialization fully runs
-    console.warn("loadTool not fully initialized yet. Attempting late execution.");
-    if (originalLoadTool) originalLoadTool(toolKey);
-}
 
 function copyToClipboard(elementId) {
     const el = document.getElementById(elementId);
@@ -811,7 +800,7 @@ async function runHumanizer() {
 
     } catch (e) {
         console.error(e);
-        alert("AI Error: " + e.message + ". Please use a modern browser (Chrome/Edge).");
+        alert("AI Error: " + e.message + ". Please use a modern browser (Chrome/Edge) or check network connectivity.");
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-stars mr-2"></i> Humanize Text';
@@ -859,13 +848,25 @@ function handlePdfUpload(input) {
 async function generatePDF() {
     if(!currentPdfFile) return;
     startProgress();
+    
+    // Safety check for jsPDF
+    if (typeof window.jspdf === 'undefined') {
+        alert("PDF dependency (jsPDF) failed to load. Cannot generate PDF.");
+        endProgress();
+        return;
+    }
 
     try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
         if (currentPdfType === 'docx') {
-            // Mammoth library is pre-loaded in index.html
+            // Safety check for mammoth
+            if (typeof mammoth === 'undefined') {
+                alert("Word conversion dependency (mammoth) failed to load. Cannot convert DOCX.");
+                endProgress();
+                return;
+            }
             
             const arrayBuffer = await currentPdfFile.arrayBuffer();
             const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
@@ -911,7 +912,7 @@ async function generatePDF() {
 
     } catch (e) {
         console.error(e);
-        alert("Error converting file. Please ensure it is a valid format and the mammoth library loaded.");
+        alert("Error converting file. Please ensure it is a valid format.");
         endProgress();
     }
 }
@@ -970,6 +971,13 @@ function exportDoc(type) {
     }
 
     if(type === 'pdf') {
+        // Safety check for jsPDF
+        if (typeof window.jspdf === 'undefined') {
+            alert("PDF dependency (jsPDF) failed to load. Cannot export PDF.");
+            endProgress();
+            return;
+        }
+
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const splitText = doc.splitTextToSize(content, 180);
@@ -1019,7 +1027,13 @@ async function handleImageUpload(input) {
             loading.classList.remove('hidden');
             
             try {
-                // heic2any is pre-loaded in index.html
+                // Safety check for heic2any
+                if (typeof heic2any === 'undefined') {
+                    alert("HEIC conversion dependency failed to load. Cannot convert HEIC.");
+                    loading.classList.add('hidden');
+                    endProgress();
+                    return;
+                }
                 
                 const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
                 const url = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
@@ -1204,8 +1218,10 @@ function setQrMainMode(mode) {
         contentScan.classList.add('hidden');
     } else {
         // Load jsQR only when the scanner is selected
-        loadScript("https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js")
-            .catch(() => console.error("Failed to load scanner library"));
+        if (typeof jsQR === 'undefined') {
+            loadScript("https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js")
+                .catch(() => console.error("Failed to load scanner library"));
+        }
 
         btnScan.className = "px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-700 shadow-sm text-emerald-600 dark:text-emerald-400 transition-all";
         btnGen.className = "px-6 py-2 rounded-lg text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-600/50 transition-all";
@@ -1234,6 +1250,12 @@ function generateQR() {
     const light = document.getElementById('qrLight').value;
     const container = document.getElementById('qrcode');
     
+    // Safety check for QRCode library
+    if (typeof QRCode === 'undefined') {
+        alert("QR code library failed to load. Cannot generate QR.");
+        return;
+    }
+
     if (qrMode === 'url') {
         text = document.getElementById('qrText').value;
     } else {
@@ -1246,7 +1268,7 @@ function generateQR() {
     container.innerHTML = "";
     document.getElementById('qrDownloadBtn').classList.add('hidden');
 
-    if(text && typeof QRCode !== 'undefined') {
+    if(text) {
         new QRCode(container, {
             text: text,
             width: 200,
@@ -1277,6 +1299,14 @@ function downloadQR() {
 function handleQRScan(input) {
     if (input.files && input.files[0]) {
         startProgress();
+        
+        // Safety check for jsQR library
+        if (typeof jsQR === 'undefined') {
+            alert("QR scanner dependency failed to load. Cannot scan image.");
+            endProgress();
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image();
@@ -1288,9 +1318,6 @@ function handleQRScan(input) {
                 context.drawImage(img, 0, 0, img.width, img.height);
                 
                 try {
-                    if (typeof jsQR === 'undefined') {
-                        throw new Error("jsQR library not loaded");
-                    }
                     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                     const code = jsQR(imageData.data, imageData.width, imageData.height, {
                         inversionAttempts: "dontInvert",
@@ -1303,7 +1330,8 @@ function handleQRScan(input) {
                         alert("No QR Code found in image.");
                     }
                 } catch(e) {
-                    alert("Scanner library not ready yet. Please try again or check browser support.");
+                    alert("Error processing QR code image.");
+                    console.error(e);
                 }
                 endProgress();
             };
@@ -1480,6 +1508,14 @@ function updateCVPreview() {
 
 async function downloadCV() {
     startProgress();
+    
+    // Safety check for jsPDF
+    if (typeof window.jspdf === 'undefined') {
+        alert("PDF dependency (jsPDF) failed to load. Cannot download CV.");
+        endProgress();
+        return;
+    }
+    
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     const element = document.getElementById('cvPreviewArea');
@@ -1600,15 +1636,6 @@ function initInvoice() {
     renderInvInputs();
     updateInvoicePreview();
 }
-
-// This logic is now handled in initializeLoadTool, removing the duplicate override
-/*
-const originalLoadToolForInv = loadTool; 
-loadTool = function(toolKey) {
-    originalLoadToolForInv(toolKey);
-    if(toolKey === 'invoiceGenerator') setTimeout(initInvoice, 100);
-}
-*/
 
 function handleInvLogo(input) {
     if (input.files && input.files[0]) {
@@ -1845,8 +1872,15 @@ function updateInvoicePreview() {
 
 function downloadInvoicePDF() {
     startProgress();
+    
+    // Safety check for html2canvas and jsPDF
+    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+        alert("PDF generation dependencies failed to load. Cannot download PDF.");
+        endProgress();
+        return;
+    }
+
     const element = document.getElementById('invoicePreview');
-    // html2canvas is pre-loaded in index.html
     
     html2canvas(element, { scale: 3, useCORS: true }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
