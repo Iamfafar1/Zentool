@@ -17,7 +17,8 @@ tailwind.config = {
                 gradient: {
                     '0%, 100%': { 'background-position': '0% 50%' },
                     '50%': { 'background-position': '100% 50%' },
-                },
+                }
+                ,
                 float: {
                     '0%, 100%': { transform: 'translateY(0)' },
                     '50%': { transform: 'translateY(-20px)' },
@@ -517,6 +518,7 @@ function filterDashboard() {
     });
 }
 
+// NOTE: This function is now only responsible for generating the dashboard HTML.
 function loadWelcomeScreen() {
     const workspace = document.getElementById('workspace');
     const titleEl = document.getElementById('tool-title');
@@ -641,91 +643,147 @@ function loadWelcomeScreen() {
     }
 }
 
-// Global variable to hold the original loadTool function reference
-let originalLoadTool;
 
-function initializeLoadTool() {
-    // Define the global loadTool function (which might be called by the static HTML before window.onload runs)
-    window.loadTool = function(toolKey) {
-        startProgress();
-        
-        const workspace = document.getElementById('workspace');
-        const tool = tools[toolKey];
-        const titleEl = document.getElementById('tool-title');
-        const descEl = document.getElementById('tool-desc');
+// --- HISTORY API IMPLEMENTATION FOR BACK BUTTON ---
 
-        if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
-            toggleSidebar();
-        }
-        
-        if(toolKey === 'imageConverter') currentImageBlob = null;
-        if(toolKey === 'pdfArchitect') currentPdfFile = null;
-        if(toolKey === 'cvBuilder') cvPhotoData = null;
+// Function to handle the browser's back/forward buttons
+function handlePopState(event) {
+    // If the state exists and has a tool key, load that tool
+    if (event.state && event.state.toolKey && event.state.toolKey !== 'dashboard') {
+        // Use the internal loading function, specifying NOT to push a new state
+        loadToolInternal(event.state.toolKey, false); 
+    } 
+    // If state is dashboard, load the welcome screen
+    else if (event.state && event.state.toolKey === 'dashboard') {
+        loadWelcomeScreenInternal(false);
+    }
+    // If state is null or the hash is empty, assume we should load the dashboard
+    else {
+        loadWelcomeScreenInternal(false); 
+    }
+}
 
-        titleEl.textContent = tool.title;
-        descEl.textContent = tool.desc;
-        workspace.innerHTML = tool.html;
+// Internal function to load the welcome screen without manipulating history
+function loadWelcomeScreenInternal(pushState = true) {
+    // Call the original rendering function
+    loadWelcomeScreen();
+    startProgress();
+    setTimeout(endProgress, 300);
 
-        // Tool-specific Initialization
-        if(toolKey === 'qrGenerator') {
-            if (typeof QRCode === 'undefined') {
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(generateQR).finally(endProgress);
-            } else {
-                generateQR();
-                endProgress();
-            }
-        } else if (toolKey === 'cvBuilder') {
-            if (typeof window.jspdf === 'undefined') {
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js").finally(endProgress);
-            }
-            setTimeout(() => {
-                updateCVPreview();
-                endProgress();
-            }, 100);
-        }
-        else if (toolKey === 'invoiceGenerator') {
-            // Check if dependencies are loaded before initInvoice
-            if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
-                // Assuming you pre-load both in index.html, just wait for the functions to be available
-                console.warn("Invoice dependencies not ready, relying on HTML pre-load.");
-            }
-            setTimeout(() => {
-                initInvoice();
-                endProgress();
-            }, 100);
-        }
-        else if (toolKey === 'pdfArchitect' || toolKey === 'docTools') {
-            // Check if dependencies are loaded for PDF/DOC tools
-            if (typeof window.jspdf === 'undefined') {
-                console.error("jsPDF dependency failed to load.");
-                alert("PDF functionality is unavailable. Please check your internet connection and hard refresh.");
-            }
-            setTimeout(endProgress, 300);
-        }
-        else {
-            setTimeout(endProgress, 300);
-        }
-    };
+    if (pushState) {
+        // Push the dashboard state to history
+        history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', '/');
+    }
+}
+
+// Internal function to load a tool without manipulating history
+function loadToolInternal(toolKey, pushState = true) {
+    startProgress();
     
-    // Store reference to the final loadTool
-    originalLoadTool = window.loadTool;
+    const workspace = document.getElementById('workspace');
+    const tool = tools[toolKey];
+    const titleEl = document.getElementById('tool-title');
+    const descEl = document.getElementById('tool-desc');
+
+    if(!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+        toggleSidebar();
+    }
+    
+    // Clear state specific to tools when switching
+    if(toolKey === 'imageConverter') currentImageBlob = null;
+    if(toolKey === 'pdfArchitect') currentPdfFile = null;
+    if(toolKey === 'cvBuilder') cvPhotoData = null;
+
+    titleEl.textContent = tool.title;
+    descEl.textContent = tool.desc;
+    workspace.innerHTML = tool.html;
+
+    // Run tool-specific Initialization logic (copied from the previous version)
+    if(toolKey === 'qrGenerator') {
+        if (typeof QRCode === 'undefined') {
+            loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(generateQR).finally(endProgress);
+        } else {
+            generateQR();
+            endProgress();
+        }
+    } else if (toolKey === 'cvBuilder') {
+        if (typeof window.jspdf === 'undefined') {
+            loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js").finally(endProgress);
+        }
+        setTimeout(() => {
+            updateCVPreview();
+            endProgress();
+        }, 100);
+    }
+    else if (toolKey === 'invoiceGenerator') {
+        // Dependencies are pre-loaded in index.html
+        setTimeout(() => {
+            initInvoice();
+            endProgress();
+        }, 100);
+    }
+    else if (toolKey === 'pdfArchitect' || toolKey === 'docTools') {
+        if (typeof window.jspdf === 'undefined') {
+            console.error("jsPDF dependency failed to load.");
+            alert("PDF functionality is unavailable. Please check your internet connection and hard refresh.");
+        }
+        setTimeout(endProgress, 300);
+    }
+    else {
+        setTimeout(endProgress, 300);
+    }
+    
+
+    // PUSH STATE LOGIC: Only run if the function wasn't called by a popstate event (i.e., it was a fresh click)
+    if (pushState) {
+        // Change the URL hash and push a new history state
+        history.pushState({ toolKey: toolKey }, tool.title, `/#${toolKey}`);
+    }
 }
 
 
-window.onload = function() {
-    // 1. Initialize the Load Tool function
-    initializeLoadTool(); 
+// OVERRIDE PUBLIC FUNCTIONS to enforce history management
 
-    // 2. Load the full dashboard using JS (replaces the static 6-tool HTML with 16 tools)
-    loadWelcomeScreen();
-    
-    // 3. Set theme
+// 1. The main loadTool function called by HTML buttons now uses loadToolInternal and pushes state.
+window.loadTool = function(toolKey) {
+    loadToolInternal(toolKey, true); 
+}
+
+// 2. The main loadWelcomeScreen function called by HTML buttons/links now uses Internal and pushes state.
+// We must re-define this function entirely to avoid removing the custom logic from the HTML buttons/sidebar links.
+window.loadWelcomeScreen = function() {
+    loadWelcomeScreenInternal(true);
+}
+
+
+// --- HISTORY API INITIALIZATION ---
+window.addEventListener('popstate', handlePopState);
+
+window.onload = function() {
+    // 1. Load Theme
     if (localStorage.getItem('theme') === 'dark') {
         html.classList.add('dark');
     }
+    
+    // 2. Check current URL hash to load the correct screen on direct access/reload
+    if (window.location.hash.length > 1) {
+        const toolKey = window.location.hash.substring(1);
+        if (tools[toolKey]) {
+            // Load tool screen but do NOT push state (since we are already on the correct URL/state)
+            loadToolInternal(toolKey, false); 
+        } else {
+             // Hash exists but is invalid, load dashboard, do NOT push state
+            loadWelcomeScreenInternal(false);
+        }
+    }
+    // 3. If no hash, load the dashboard as the starting point.
+    else {
+        // Load dashboard, and push the initial "dashboard" state to history
+        loadWelcomeScreenInternal(true);
+    }
 };
 
-// --- Core Functions (kept mostly the same for stability, but ensuring scope) ---
+// --- CORE TOOL FUNCTIONS (Remaining logic for tool operation) ---
 
 function copyToClipboard(elementId) {
     const el = document.getElementById(elementId);
