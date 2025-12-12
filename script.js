@@ -31,10 +31,7 @@ tailwind.config = {
 // --- Dynamic Script Loader ---
 function loadScript(src) {
     return new Promise((resolve, reject) => {
-        // Check if the script is already loaded
         if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
-        
-        // Check if the script is currently loading
         if (document.querySelector(`script[data-loading="${src}"]`)) {
             const script = document.querySelector(`script[data-loading="${src}"]`);
             script.addEventListener('load', resolve);
@@ -648,16 +645,12 @@ function loadWelcomeScreen() {
 
 // Function to handle the browser's back/forward buttons
 function handlePopState(event) {
-    // If the state exists and has a tool key, load that tool
+    // Check if the state exists and has a tool key, load that tool
     if (event.state && event.state.toolKey && event.state.toolKey !== 'dashboard') {
         // Use the internal loading function, specifying NOT to push a new state
         loadToolInternal(event.state.toolKey, false); 
     } 
-    // If state is dashboard, load the welcome screen
-    else if (event.state && event.state.toolKey === 'dashboard') {
-        loadWelcomeScreenInternal(false);
-    }
-    // If state is null or the hash is empty, assume we should load the dashboard
+    // If state is dashboard or null (going past the first state), load the welcome screen
     else {
         loadWelcomeScreenInternal(false); 
     }
@@ -665,16 +658,16 @@ function handlePopState(event) {
 
 // Internal function to load the welcome screen without manipulating history
 function loadWelcomeScreenInternal(pushState = true) {
-    // Call the original rendering function
+    // RENDER FULL 16-TOOL DASHBOARD
     loadWelcomeScreen();
     startProgress();
     setTimeout(endProgress, 300);
     
-    // NOTE: For GitHub Pages (or index.html), pushing to window.location.pathname usually just pushes /index.html
     const dashboardURL = window.location.pathname;
 
     if (pushState) {
         // Push the dashboard state to history
+        // Replacing state ensures the home button doesn't create an infinite history loop
         history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', dashboardURL);
     }
 }
@@ -736,7 +729,7 @@ function loadToolInternal(toolKey, pushState = true) {
     }
     
 
-    // PUSH STATE LOGIC: Only run if the function wasn't called by a popstate event (i.e., it was a fresh click)
+    // PUSH STATE LOGIC
     if (pushState) {
         // Change the URL hash and push a new history state
         history.pushState({ toolKey: toolKey }, tool.title, `${window.location.pathname}#${toolKey}`);
@@ -746,21 +739,16 @@ function loadToolInternal(toolKey, pushState = true) {
 
 // OVERRIDE PUBLIC FUNCTIONS to enforce history management
 
-/**
- * FIX FOR HOME BUTTON: We must ensure the `onclick` handler in the HTML logo/sidebar 
- * doesn't cause unexpected navigation behavior by preventing the default action.
- * * NOTE: The HTML already has onclick="loadWelcomeScreen()", so we just need to ensure 
- * the function definition is robust.
- */
-
 // 1. The main loadTool function called by HTML buttons now uses loadToolInternal and pushes state.
 window.loadTool = function(toolKey) {
+    // This is the function called by the sidebar buttons
     loadToolInternal(toolKey, true); 
 }
 
 // 2. The main loadWelcomeScreen function called by HTML buttons/links now uses Internal and pushes state.
+// This is the function called by the logo/sidebar button: onclick="loadWelcomeScreen()"
 window.loadWelcomeScreen = function(event) {
-    // Add event parameter check and prevent default behavior for logo links
+    // Ensure the default link action (which might navigate to index.html and break the SPA) is prevented.
     if (event && event.preventDefault) {
         event.preventDefault(); 
     }
@@ -781,11 +769,11 @@ window.onload = function() {
     if (window.location.hash.length > 1) {
         const toolKey = window.location.hash.substring(1);
         if (tools[toolKey]) {
-            // Load tool screen and replace the initial history entry
+            // Load tool screen and replace the initial history entry (to allow the back button to work)
              history.replaceState({ toolKey: toolKey }, tools[toolKey].title, window.location.href);
             loadToolInternal(toolKey, false); 
         } else {
-             // Hash exists but is invalid, load dashboard, do NOT push state
+             // Hash exists but is invalid, load dashboard
             loadWelcomeScreenInternal(false);
         }
     }
