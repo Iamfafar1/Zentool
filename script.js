@@ -1795,3 +1795,4 @@ function loadInvoiceJSON(input) {
     }
 
 }
+
