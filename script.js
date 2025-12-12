@@ -672,7 +672,8 @@ function loadWelcomeScreenInternal(pushState = true) {
 
     if (pushState) {
         // Push the dashboard state to history
-        history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', '/');
+        // Using window.location.pathname ensures it works with gh-pages base URL
+        history.pushState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', window.location.pathname);
     }
 }
 
@@ -698,7 +699,7 @@ function loadToolInternal(toolKey, pushState = true) {
     descEl.textContent = tool.desc;
     workspace.innerHTML = tool.html;
 
-    // Run tool-specific Initialization logic (copied from the previous version)
+    // Run tool-specific Initialization logic
     if(toolKey === 'qrGenerator') {
         if (typeof QRCode === 'undefined') {
             loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js").then(generateQR).finally(endProgress);
@@ -716,7 +717,6 @@ function loadToolInternal(toolKey, pushState = true) {
         }, 100);
     }
     else if (toolKey === 'invoiceGenerator') {
-        // Dependencies are pre-loaded in index.html
         setTimeout(() => {
             initInvoice();
             endProgress();
@@ -737,7 +737,8 @@ function loadToolInternal(toolKey, pushState = true) {
     // PUSH STATE LOGIC: Only run if the function wasn't called by a popstate event (i.e., it was a fresh click)
     if (pushState) {
         // Change the URL hash and push a new history state
-        history.pushState({ toolKey: toolKey }, tool.title, `/#${toolKey}`);
+        // Use window.location.pathname to maintain the base URL, and append hash
+        history.pushState({ toolKey: toolKey }, tool.title, `${window.location.pathname}#${toolKey}`);
     }
 }
 
@@ -750,7 +751,6 @@ window.loadTool = function(toolKey) {
 }
 
 // 2. The main loadWelcomeScreen function called by HTML buttons/links now uses Internal and pushes state.
-// We must re-define this function entirely to avoid removing the custom logic from the HTML buttons/sidebar links.
 window.loadWelcomeScreen = function() {
     loadWelcomeScreenInternal(true);
 }
@@ -766,20 +766,23 @@ window.onload = function() {
     }
     
     // 2. Check current URL hash to load the correct screen on direct access/reload
+    // We check both the hash and the state object (for browser refresh)
     if (window.location.hash.length > 1) {
         const toolKey = window.location.hash.substring(1);
         if (tools[toolKey]) {
-            // Load tool screen but do NOT push state (since we are already on the correct URL/state)
+            // Use replaceState here to clean up the initial history entry before loading tool
+             history.replaceState({ toolKey: toolKey }, tools[toolKey].title, window.location.href);
             loadToolInternal(toolKey, false); 
         } else {
              // Hash exists but is invalid, load dashboard, do NOT push state
             loadWelcomeScreenInternal(false);
         }
     }
-    // 3. If no hash, load the dashboard as the starting point.
+    // 3. If no hash, ensure the dashboard state is set as the initial history entry
     else {
-        // Load dashboard, and push the initial "dashboard" state to history
-        loadWelcomeScreenInternal(true);
+        // Load dashboard, and use replaceState to set the initial "dashboard" state
+        loadWelcomeScreenInternal(false);
+        history.replaceState({ toolKey: 'dashboard' }, 'ZenTool Dashboard', window.location.pathname);
     }
 };
 
@@ -1165,7 +1168,7 @@ function convertImage() {
 const fontMaps = {
     bold: "𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙",
     italic: "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡",
-    script: "𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜𝐵𝒞𝒟𝐸𝒯𝒢𝐻𝐼𝒥𝒦𝐿𝑀𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵",
+    script: "𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏𝒜𝐵𝒞𝒟𝐸𝒯𝒢𝐻𝐼𝒥𝒦𝐿𝑀𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝐙",
     normal: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 };
 
@@ -1886,7 +1889,7 @@ function updateInvoicePreview() {
 
     } else {
         html = `
-            <div class="p-12 font-sans h-full relative bg-white">
+            <div class="p-12 font-sans relative bg-white">
                 ${watermarkHtml}
                 <div class="flex justify-between items-start mb-12 border-b-2 border-emerald-500 pb-8 relative z-10">
                     <div>
